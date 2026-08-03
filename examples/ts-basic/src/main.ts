@@ -48,6 +48,9 @@ async function main() {
           event.payload.value.argumentsJson,
         );
         break;
+      case "toolResultDelta":
+        process.stdout.write(event.payload.value.chunk);
+        break;
       case "toolApprovalRequired": {
         const value = event.payload.value;
         console.log(

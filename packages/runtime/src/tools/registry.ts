@@ -72,7 +72,10 @@ export class ToolRegistry {
           };
         }
       }
-      const result = await tool.execute(args, ctx);
+      const result = await tool.execute(args, {
+        ...ctx,
+        emitDelta: ctx.emitDelta ?? (() => undefined),
+      });
       return {
         resultJson: JSON.stringify(result ?? null),
         isError: false,

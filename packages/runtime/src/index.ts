@@ -60,6 +60,8 @@ export { InMemoryMemoryStore, CompositeMemoryStore } from "./memory/store.js";
 export { McpManager } from "./mcp/manager.js";
 export type { McpServerConfig } from "./mcp/manager.js";
 
+export { AsyncEventQueue } from "./tools/event-queue.js";
+
 export { createAgent } from "./create-agent.js";
 export type { CreateAgentOptions, MiniAgent } from "./create-agent.js";
 

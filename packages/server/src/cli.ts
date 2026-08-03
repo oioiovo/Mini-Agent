@@ -1,15 +1,33 @@
 #!/usr/bin/env node
 import { existsSync } from "node:fs";
-import { dirname, resolve } from "node:path";
+import { dirname, isAbsolute, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { config as loadEnv } from "dotenv";
 import { createMiniAgentServer } from "./server.js";
 
-function loadDotEnv(): string | undefined {
+function findRepoRoot(): string {
+  const starts = [
+    process.cwd(),
+    resolve(dirname(fileURLToPath(import.meta.url)), ".."),
+    resolve(dirname(fileURLToPath(import.meta.url)), "../.."),
+    resolve(dirname(fileURLToPath(import.meta.url)), "../../.."),
+  ];
+  for (const start of starts) {
+    let dir = start;
+    for (let i = 0; i < 8; i += 1) {
+      if (existsSync(resolve(dir, "pnpm-workspace.yaml"))) return dir;
+      const parent = dirname(dir);
+      if (parent === dir) break;
+      dir = parent;
+    }
+  }
+  return process.cwd();
+}
+
+function loadDotEnv(repoRoot: string): string | undefined {
   const candidates = [
     resolve(process.cwd(), ".env"),
-    resolve(process.cwd(), "../../.env"),
-    resolve(dirname(fileURLToPath(import.meta.url)), "../../../.env"),
+    resolve(repoRoot, ".env"),
   ];
   for (const path of candidates) {
     if (existsSync(path)) {
@@ -21,8 +39,14 @@ function loadDotEnv(): string | undefined {
   return undefined;
 }
 
+function resolveFromRepo(repoRoot: string, value: string | undefined, fallback: string): string {
+  const raw = value?.trim() || fallback;
+  return isAbsolute(raw) ? raw : resolve(repoRoot, raw);
+}
+
 async function main() {
-  const envPath = loadDotEnv();
+  const repoRoot = findRepoRoot();
+  const envPath = loadDotEnv(repoRoot);
 
   const [, , command = "serve", ...rest] = process.argv;
   if (command !== "serve") {
@@ -45,7 +69,16 @@ async function main() {
     process.env.MINI_AGENT_AUTO_APPROVE === "true" ||
     process.env.MINI_AGENT_AUTO_APPROVE === "1";
 
-  const server = await createMiniAgentServer({ port });
+  const workspaceRoot = resolveFromRepo(repoRoot, process.env.MINI_AGENT_WORKSPACE, "workspace");
+  const dataDir = resolveFromRepo(repoRoot, process.env.MINI_AGENT_DATA_DIR, "data");
+
+  const server = await createMiniAgentServer({
+    port,
+    agentOptions: {
+      workspaceRoot,
+      sqlitePath: resolve(dataDir, "sessions.sqlite"),
+    },
+  });
   console.log(
     `Mini-Agent listening on http://${server.host === "0.0.0.0" ? "127.0.0.1" : server.host}:${server.port}`,
   );

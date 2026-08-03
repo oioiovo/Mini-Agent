@@ -216,4 +216,111 @@ describe("AgentLoop", () => {
       "run.completed",
     ]);
   });
+
+  it("emits tool.result_delta chunks", async () => {
+    const tools = new ToolRegistry();
+    tools.register(
+      defineLocalTool({
+        name: "streamy",
+        description: "Streams",
+        risk: "read",
+        execute: (_args, ctx) => {
+          ctx.emitDelta("hello ");
+          ctx.emitDelta("world");
+          return { ok: true };
+        },
+      }),
+    );
+
+    let step = 0;
+    const llm = new FakeLlmClient(async () => {
+      step += 1;
+      if (step === 1) {
+        return {
+          finishReason: "tool_calls",
+          message: {
+            role: "assistant",
+            content: "",
+            toolCalls: [{ id: "s1", name: "streamy", arguments: "{}" }],
+          },
+        };
+      }
+      return {
+        finishReason: "stop",
+        message: { role: "assistant", content: "done" },
+      };
+    });
+
+    const sessions = new InMemorySessionStore();
+    const session = await sessions.create({});
+    const loop = createLoop({ llm, tools, sessions });
+    const events = [];
+    const deltas = [];
+    for await (const event of loop.run({ sessionId: session.id, message: "stream" })) {
+      events.push(event.type);
+      if (event.type === "tool.result_delta") deltas.push(event.chunk);
+    }
+    assert.deepEqual(deltas, ["hello ", "world"]);
+    assert.ok(events.includes("tool.result_delta"));
+    assert.ok(events.indexOf("tool.result_delta") < events.indexOf("tool.completed"));
+  });
+
+  it("runs auto-allow read tools in parallel", async () => {
+    const tools = new ToolRegistry();
+    const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+    tools.register(
+      defineLocalTool({
+        name: "slow_a",
+        description: "A",
+        risk: "read",
+        execute: async () => {
+          await sleep(80);
+          return { name: "a" };
+        },
+      }),
+    );
+    tools.register(
+      defineLocalTool({
+        name: "slow_b",
+        description: "B",
+        risk: "read",
+        execute: async () => {
+          await sleep(80);
+          return { name: "b" };
+        },
+      }),
+    );
+
+    let step = 0;
+    const llm = new FakeLlmClient(async () => {
+      step += 1;
+      if (step === 1) {
+        return {
+          finishReason: "tool_calls",
+          message: {
+            role: "assistant",
+            content: "",
+            toolCalls: [
+              { id: "a1", name: "slow_a", arguments: "{}" },
+              { id: "b1", name: "slow_b", arguments: "{}" },
+            ],
+          },
+        };
+      }
+      return {
+        finishReason: "stop",
+        message: { role: "assistant", content: "both done" },
+      };
+    });
+
+    const sessions = new InMemorySessionStore();
+    const session = await sessions.create({});
+    const loop = createLoop({ llm, tools, sessions });
+    const started = Date.now();
+    for await (const _event of loop.run({ sessionId: session.id, message: "go" })) {
+      // drain
+    }
+    const elapsed = Date.now() - started;
+    assert.ok(elapsed < 150, `expected parallel (~80ms), got ${elapsed}ms`);
+  });
 });

@@ -133,6 +133,7 @@ message AgentEvent {
     RunCompletedEvent run_completed = 15;
     RunErrorEvent run_error = 16;
     ToolApprovalRequiredEvent tool_approval_required = 17;
+    ToolResultDeltaEvent tool_result_delta = 18;
   }
 }
 
@@ -155,6 +156,13 @@ message ToolResultEvent {
   string tool_name = 2;
   string result_json = 3;
   bool is_error = 4;
+}
+
+message ToolResultDeltaEvent {
+  string tool_call_id = 1;
+  string tool_name = 2;
+  string chunk = 3;
+  int32 sequence = 4;
 }
 
 message ToolApprovalRequiredEvent {

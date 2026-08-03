@@ -1,7 +1,7 @@
 version: v2
 clean: true
 plugins:
-  - remote: buf.build/bufbuild/es:v2.2.3
+  - local: protoc-gen-es
     out: packages/shared/src/gen
     include_imports: true
     opt:

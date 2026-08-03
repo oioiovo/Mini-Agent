@@ -114,7 +114,7 @@ export function createBuiltinTools(options: BuiltinToolsOptions): RegisteredTool
           },
           required: ["path"],
         },
-        execute: ({ path: userPath }) => {
+        execute: ({ path: userPath }, ctx) => {
           const target = resolveSafePath(workspaceRoot, String(userPath ?? ""));
           const stat = statSync(target);
           if (!stat.isFile()) throw new Error("Not a file");
@@ -122,6 +122,12 @@ export function createBuiltinTools(options: BuiltinToolsOptions): RegisteredTool
             throw new Error(`File too large: ${stat.size} bytes (max ${MAX_READ_BYTES})`);
           }
           const content = readFileSync(target, "utf8");
+          const CHUNK = 8 * 1024;
+          if (content.length > CHUNK) {
+            for (let i = 0; i < content.length; i += CHUNK) {
+              ctx.emitDelta(content.slice(i, i + CHUNK));
+            }
+          }
           return { path: userPath, content, bytes: Buffer.byteLength(content, "utf8") };
         },
       }),
@@ -199,7 +205,30 @@ export function createBuiltinTools(options: BuiltinToolsOptions): RegisteredTool
             signal: ctx.abortSignal,
           });
 
-          const raw = Buffer.from(await response.arrayBuffer());
+          const chunks: Buffer[] = [];
+          let total = 0;
+          if (response.body) {
+            const reader = response.body.getReader();
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
+              const buf = Buffer.from(value);
+              chunks.push(buf);
+              total += buf.length;
+              ctx.emitDelta(buf.toString("utf8"));
+              if (total >= MAX_HTTP_RESPONSE_BYTES) {
+                // keep reading? plan says truncate final; stop emitting more after cap
+                // still drain briefly for accuracy of byte count
+              }
+            }
+          } else {
+            const raw = Buffer.from(await response.arrayBuffer());
+            chunks.push(raw);
+            total = raw.length;
+            if (raw.length > 0) ctx.emitDelta(raw.toString("utf8"));
+          }
+
+          const raw = Buffer.concat(chunks);
           const truncated = raw.length > MAX_HTTP_RESPONSE_BYTES;
           const slice = truncated ? raw.subarray(0, MAX_HTTP_RESPONSE_BYTES) : raw;
           return {

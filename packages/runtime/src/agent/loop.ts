@@ -5,10 +5,12 @@ import type {
   LlmClient,
   Logger,
   MemoryStore,
+  ToolCall,
 } from "../types.js";
 import type { SessionStore } from "../session/memory-store.js";
 import type { ApprovalBroker } from "../tools/approval.js";
-import type { ToolPolicy } from "../tools/policy.js";
+import { AsyncEventQueue } from "../tools/event-queue.js";
+import type { ToolPolicy, ToolPolicyResult } from "../tools/policy.js";
 import type { ToolRegistry } from "../tools/registry.js";
 import { consoleLogger, nowMs, toErrorMessage } from "../utils.js";
 
@@ -54,6 +56,12 @@ function combineSignals(signals: AbortSignal[]): AbortSignal {
     );
   }
   return controller.signal;
+}
+
+interface ToolCallOutcome {
+  toolCallId: string;
+  toolName: string;
+  resultJson: string;
 }
 
 export class AgentLoop {
@@ -201,7 +209,10 @@ export class AgentLoop {
           return;
         }
 
-        const toolMessages: ChatMessage[] = [];
+        const outcomes = new Map<string, ToolCallOutcome>();
+        const parallel: ToolCall[] = [];
+        const serial: ToolCall[] = [];
+
         for (const call of toolCalls) {
           const tool = this.options.tools.get(call.name);
           const policy = this.options.policy.evaluate({
@@ -212,65 +223,27 @@ export class AgentLoop {
             source: tool?.source,
             argumentsJson: call.arguments,
           });
+          if (policy.decision === "allow" && policy.risk === "read") {
+            parallel.push(call);
+          } else {
+            serial.push(call);
+          }
+        }
 
-          let allowed = policy.decision === "allow";
-
-          if (policy.decision === "deny") {
-            const resultJson = JSON.stringify({ error: policy.reason });
-            yield {
-              type: "tool.completed",
-              ...emitBase,
-              toolCallId: call.id,
-              toolName: call.name,
-              resultJson,
-              isError: true,
-              timestampMs: nowMs(),
-            };
-            this.logger.info("tool denied", {
+        if (parallel.length > 0) {
+          const queue = new AsyncEventQueue<AgentEvent>();
+          const workers = parallel.map((call) =>
+            this.executeToolCall({
+              call,
+              emitBase,
               runId,
               sessionId,
-              tool_name: call.name,
-              risk: policy.risk,
-              decision: "deny",
-            });
-            toolMessages.push({
-              role: "tool",
-              content: resultJson,
-              toolCallId: call.id,
-              name: call.name,
-            });
-            continue;
-          }
-
-          if (policy.decision === "require_approval") {
-            const approvalId = nanoid();
-            const decisionPromise = this.options.approvals.begin(
-              runId,
-              approvalId,
-              this.approvalTimeoutMs,
-            );
-            yield {
-              type: "tool.approval_required",
-              ...emitBase,
-              approvalId,
-              toolCallId: call.id,
-              toolName: call.name,
-              argumentsJson: call.arguments,
-              risk: policy.risk,
-              reason: policy.reason,
-              timestampMs: nowMs(),
-            };
-
-            const decision = await decisionPromise;
-
-            if (decision !== "approve") {
-              const resultJson = JSON.stringify({
-                error:
-                  decision === "timeout"
-                    ? "Tool approval timed out"
-                    : "Tool approval denied",
-              });
-              yield {
+              abortSignal: controller.signal,
+              push: (event) => queue.push(event),
+              onOutcome: (outcome) => outcomes.set(outcome.toolCallId, outcome),
+            }).catch((err) => {
+              const resultJson = JSON.stringify({ error: toErrorMessage(err) });
+              queue.push({
                 type: "tool.completed",
                 ...emitBase,
                 toolCallId: call.id,
@@ -278,73 +251,49 @@ export class AgentLoop {
                 resultJson,
                 isError: true,
                 timestampMs: nowMs(),
-              };
-              this.logger.info("tool approval rejected", {
-                runId,
-                sessionId,
-                tool_name: call.name,
-                risk: policy.risk,
-                decision,
               });
-              toolMessages.push({
-                role: "tool",
-                content: resultJson,
+              outcomes.set(call.id, {
                 toolCallId: call.id,
-                name: call.name,
+                toolName: call.name,
+                resultJson,
               });
-              continue;
-            }
-            allowed = true;
+            }),
+          );
+
+          const allDone = Promise.all(workers).finally(() => queue.close());
+          for await (const event of queue) {
+            yield event;
           }
+          await allDone;
+        }
 
-          if (!allowed) continue;
-
-          yield {
-            type: "tool.started",
-            ...emitBase,
-            toolCallId: call.id,
-            toolName: call.name,
-            argumentsJson: call.arguments,
-            timestampMs: nowMs(),
-          };
-
-          const startedAt = nowMs();
-          const toolTimeout = AbortSignal.timeout(this.toolTimeoutMs);
-          const executed = await this.options.tools.execute(call.name, call.arguments, {
-            sessionId,
-            runId,
-            abortSignal: combineSignals([controller.signal, toolTimeout]),
-            logger: this.logger,
-          });
-          const durationMs = nowMs() - startedAt;
-
-          yield {
-            type: "tool.completed",
-            ...emitBase,
-            toolCallId: call.id,
-            toolName: call.name,
-            resultJson: executed.resultJson,
-            isError: executed.isError,
-            timestampMs: nowMs(),
-          };
-
-          this.logger.info("tool executed", {
+        for (const call of serial) {
+          const queue = new AsyncEventQueue<AgentEvent>();
+          const worker = this.executeToolCall({
+            call,
+            emitBase,
             runId,
             sessionId,
-            tool_name: call.name,
-            risk: policy.risk,
-            decision: "allow",
-            duration_ms: durationMs,
-            is_error: executed.isError,
-          });
+            abortSignal: controller.signal,
+            push: (event) => queue.push(event),
+            onOutcome: (outcome) => outcomes.set(outcome.toolCallId, outcome),
+          }).finally(() => queue.close());
 
-          toolMessages.push({
-            role: "tool",
-            content: executed.resultJson,
+          for await (const event of queue) {
+            yield event;
+          }
+          await worker;
+        }
+
+        const toolMessages: ChatMessage[] = toolCalls.map((call) => {
+          const outcome = outcomes.get(call.id);
+          return {
+            role: "tool" as const,
+            content: outcome?.resultJson ?? JSON.stringify({ error: "Missing tool result" }),
             toolCallId: call.id,
             name: call.name,
-          });
-        }
+          };
+        });
 
         await this.options.sessions.appendMessages(sessionId, toolMessages);
         await this.options.memory?.append(sessionId, toolMessages);
@@ -371,5 +320,158 @@ export class AgentLoop {
       this.options.approvals.cancelRun(runId);
       this.activeRuns.delete(runId);
     }
+  }
+
+  private async executeToolCall(input: {
+    call: ToolCall;
+    emitBase: { runId: string; sessionId: string };
+    runId: string;
+    sessionId: string;
+    abortSignal: AbortSignal;
+    push: (event: AgentEvent) => void;
+    onOutcome: (outcome: ToolCallOutcome) => void;
+  }): Promise<void> {
+    const { call, emitBase, runId, sessionId, abortSignal, push, onOutcome } = input;
+    const tool = this.options.tools.get(call.name);
+    const policy: ToolPolicyResult = this.options.policy.evaluate({
+      name: call.name,
+      risk: tool?.risk,
+      requiresApproval: tool?.requiresApproval,
+      sideEffect: tool?.sideEffect,
+      source: tool?.source,
+      argumentsJson: call.arguments,
+    });
+
+    let allowed = policy.decision === "allow";
+
+    if (policy.decision === "deny") {
+      const resultJson = JSON.stringify({ error: policy.reason });
+      push({
+        type: "tool.completed",
+        ...emitBase,
+        toolCallId: call.id,
+        toolName: call.name,
+        resultJson,
+        isError: true,
+        timestampMs: nowMs(),
+      });
+      this.logger.info("tool denied", {
+        runId,
+        sessionId,
+        tool_name: call.name,
+        risk: policy.risk,
+        decision: "deny",
+      });
+      onOutcome({ toolCallId: call.id, toolName: call.name, resultJson });
+      return;
+    }
+
+    if (policy.decision === "require_approval") {
+      const approvalId = nanoid();
+      const decisionPromise = this.options.approvals.begin(
+        runId,
+        approvalId,
+        this.approvalTimeoutMs,
+      );
+      push({
+        type: "tool.approval_required",
+        ...emitBase,
+        approvalId,
+        toolCallId: call.id,
+        toolName: call.name,
+        argumentsJson: call.arguments,
+        risk: policy.risk,
+        reason: policy.reason,
+        timestampMs: nowMs(),
+      });
+
+      const decision = await decisionPromise;
+      if (decision !== "approve") {
+        const resultJson = JSON.stringify({
+          error:
+            decision === "timeout"
+              ? "Tool approval timed out"
+              : "Tool approval denied",
+        });
+        push({
+          type: "tool.completed",
+          ...emitBase,
+          toolCallId: call.id,
+          toolName: call.name,
+          resultJson,
+          isError: true,
+          timestampMs: nowMs(),
+        });
+        this.logger.info("tool approval rejected", {
+          runId,
+          sessionId,
+          tool_name: call.name,
+          risk: policy.risk,
+          decision,
+        });
+        onOutcome({ toolCallId: call.id, toolName: call.name, resultJson });
+        return;
+      }
+      allowed = true;
+    }
+
+    if (!allowed) return;
+
+    push({
+      type: "tool.started",
+      ...emitBase,
+      toolCallId: call.id,
+      toolName: call.name,
+      argumentsJson: call.arguments,
+      timestampMs: nowMs(),
+    });
+
+    let sequence = 0;
+    const startedAt = nowMs();
+    const toolTimeout = AbortSignal.timeout(this.toolTimeoutMs);
+    const executed = await this.options.tools.execute(call.name, call.arguments, {
+      sessionId,
+      runId,
+      abortSignal: combineSignals([abortSignal, toolTimeout]),
+      logger: this.logger,
+      emitDelta: (chunk: string) => {
+        push({
+          type: "tool.result_delta",
+          ...emitBase,
+          toolCallId: call.id,
+          toolName: call.name,
+          chunk,
+          sequence: sequence++,
+          timestampMs: nowMs(),
+        });
+      },
+    });
+    const durationMs = nowMs() - startedAt;
+
+    push({
+      type: "tool.completed",
+      ...emitBase,
+      toolCallId: call.id,
+      toolName: call.name,
+      resultJson: executed.resultJson,
+      isError: executed.isError,
+      timestampMs: nowMs(),
+    });
+
+    this.logger.info("tool executed", {
+      runId,
+      sessionId,
+      tool_name: call.name,
+      risk: policy.risk,
+      decision: "allow",
+      duration_ms: durationMs,
+      is_error: executed.isError,
+    });
+
+    onOutcome({
+      toolCallId: call.id,
+      toolName: call.name,
+      resultJson: executed.resultJson,
+    });
   }
 }

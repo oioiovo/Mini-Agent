@@ -37,6 +37,8 @@ export interface ToolContext {
   runId: string;
   abortSignal: AbortSignal;
   logger: Logger;
+  /** Optional streaming chunks for clients; does not replace final tool result. */
+  emitDelta(chunk: string): void;
 }
 
 export interface Logger {
@@ -66,6 +68,16 @@ export type AgentEvent =
       toolName: string;
       resultJson: string;
       isError: boolean;
+      timestampMs: number;
+    }
+  | {
+      type: "tool.result_delta";
+      runId: string;
+      sessionId: string;
+      toolCallId: string;
+      toolName: string;
+      chunk: string;
+      sequence: number;
       timestampMs: number;
     }
   | {

@@ -87,6 +87,73 @@ describe("server e2e", () => {
     }
   });
 
+  it("streams toolResultDelta over Connect", async () => {
+    let step = 0;
+    const llm = new FakeLlmClient(async () => {
+      step += 1;
+      if (step === 1) {
+        return {
+          finishReason: "tool_calls",
+          message: {
+            role: "assistant",
+            content: "",
+            toolCalls: [{ id: "s1", name: "streamy", arguments: "{}" }],
+          },
+        };
+      }
+      return {
+        finishReason: "stop",
+        message: { role: "assistant", content: "ok" },
+      };
+    });
+
+    const agent = await createAgent({
+      llm,
+      sessionBackend: "memory",
+      policy: { autoApprove: true },
+      tools: [
+        defineLocalTool({
+          name: "streamy",
+          description: "stream",
+          risk: "read",
+          execute: (_args, ctx) => {
+            ctx.emitDelta("chunk-1");
+            ctx.emitDelta("chunk-2");
+            return { ok: true };
+          },
+        }),
+      ],
+    });
+
+    const server = await createMiniAgentServer({
+      host: "127.0.0.1",
+      port: 0,
+      apiKey: "test-key",
+      agent,
+      enableBuiltinTools: false,
+    });
+
+    try {
+      const client = new MiniAgentClient({
+        baseUrl: `http://127.0.0.1:${server.port}`,
+        apiKey: "test-key",
+      });
+      const session = await client.createSession();
+      const deltas: string[] = [];
+      for await (const event of client.run({
+        sessionId: session.id,
+        message: "stream",
+      })) {
+        if (event.payload.case === "toolResultDelta") {
+          deltas.push(event.payload.value.chunk);
+        }
+      }
+      assert.deepEqual(deltas, ["chunk-1", "chunk-2"]);
+    } finally {
+      await server.close();
+    }
+  });
+
   it("requires ResolveToolApproval for write tools", async () => {
     let step = 0;
     const llm = new FakeLlmClient(async () => {

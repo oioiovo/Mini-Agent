@@ -42,6 +42,10 @@ pnpm dev
 默认内置工具：`now`、`calculator`、`list_dir`、`read_file`、`write_file`、`http_request`。  
 其中 `write_file` / `http_request` 默认需要审批（除非 `MINI_AGENT_AUTO_APPROVE=true`）。
 
+工具执行规则：
+- 工具可通过 `emitDelta` 推送 `toolResultDelta`（客户端观察用；发给模型的仍是最终完整 `toolResult`）
+- 同一步内 **自动放行且 risk=read** 的工具会并行执行；需审批 / write / network / exec 仍串行
+
 ## TypeScript 客户端
 
 ```bash

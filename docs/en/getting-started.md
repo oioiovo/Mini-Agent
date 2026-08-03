@@ -42,6 +42,10 @@ Health check: `GET http://127.0.0.1:8787/healthz`
 Builtin tools: `now`, `calculator`, `list_dir`, `read_file`, `write_file`, `http_request`.  
 `write_file` / `http_request` require approval unless `MINI_AGENT_AUTO_APPROVE=true`.
 
+Tool execution:
+- Tools may push `toolResultDelta` via `emitDelta` (client observability; the model still receives the final full `toolResult`)
+- Auto-allowed `risk=read` tools in the same step run in parallel; approval / write / network / exec stay serial
+
 ## TypeScript client
 
 ```bash

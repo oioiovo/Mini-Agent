@@ -104,6 +104,19 @@ function toProtoEvent(event: RuntimeEvent): AgentEvent {
           },
         },
       });
+    case "tool.result_delta":
+      return create(AgentEventSchema, {
+        ...base,
+        payload: {
+          case: "toolResultDelta",
+          value: {
+            toolCallId: event.toolCallId,
+            toolName: event.toolName,
+            chunk: event.chunk,
+            sequence: event.sequence,
+          },
+        },
+      });
     case "tool.approval_required":
       return create(AgentEventSchema, {
         ...base,
