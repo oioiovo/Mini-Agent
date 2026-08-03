@@ -1,0 +1,156 @@
+syntax = "proto3";
+
+package agent.v1;
+
+option java_multiple_files = true;
+
+// AgentService is the public surface for thin multi-language clients.
+service AgentService {
+  rpc CreateSession(CreateSessionRequest) returns (CreateSessionResponse);
+  rpc GetSession(GetSessionRequest) returns (GetSessionResponse);
+  rpc RunAgent(RunAgentRequest) returns (stream AgentEvent);
+  rpc CancelRun(CancelRunRequest) returns (CancelRunResponse);
+  rpc ListTools(ListToolsRequest) returns (ListToolsResponse);
+  rpc RegisterHttpTool(RegisterHttpToolRequest) returns (RegisterHttpToolResponse);
+  rpc UpsertMcpServer(UpsertMcpServerRequest) returns (UpsertMcpServerResponse);
+}
+
+message CreateSessionRequest {
+  map<string, string> metadata = 1;
+  string system_prompt = 2;
+}
+
+message CreateSessionResponse {
+  Session session = 1;
+}
+
+message GetSessionRequest {
+  string session_id = 1;
+}
+
+message GetSessionResponse {
+  Session session = 1;
+}
+
+message Session {
+  string id = 1;
+  int64 created_at_ms = 2;
+  int64 updated_at_ms = 3;
+  map<string, string> metadata = 4;
+  string system_prompt = 5;
+  int32 message_count = 6;
+}
+
+message RunAgentRequest {
+  string session_id = 1;
+  string message = 2;
+  // Optional override; empty uses server default.
+  string model = 3;
+  int32 max_steps = 4;
+  int32 timeout_ms = 5;
+}
+
+message CancelRunRequest {
+  string run_id = 1;
+}
+
+message CancelRunResponse {
+  bool cancelled = 1;
+}
+
+message ListToolsRequest {}
+
+message ListToolsResponse {
+  repeated ToolInfo tools = 1;
+}
+
+message ToolInfo {
+  string name = 1;
+  string description = 2;
+  // JSON Schema object encoded as JSON string.
+  string input_schema_json = 3;
+  string source = 4; // local | http | mcp
+  bool side_effect = 5;
+  bool requires_approval = 6;
+}
+
+message RegisterHttpToolRequest {
+  string name = 1;
+  string description = 2;
+  string input_schema_json = 3;
+  string url = 4;
+  map<string, string> headers = 5;
+  bool side_effect = 6;
+  bool requires_approval = 7;
+}
+
+message RegisterHttpToolResponse {
+  ToolInfo tool = 1;
+}
+
+message UpsertMcpServerRequest {
+  string name = 1;
+  // stdio | sse | http
+  string transport = 2;
+  // For stdio: command. For sse/http: URL.
+  string endpoint = 3;
+  repeated string args = 4;
+  map<string, string> env = 5;
+}
+
+message UpsertMcpServerResponse {
+  string name = 1;
+  int32 tool_count = 2;
+}
+
+message AgentEvent {
+  string run_id = 1;
+  string session_id = 2;
+  int64 timestamp_ms = 3;
+  oneof payload {
+    RunStartedEvent run_started = 10;
+    TextDeltaEvent text_delta = 11;
+    ToolCallEvent tool_call = 12;
+    ToolResultEvent tool_result = 13;
+    MemoryHitEvent memory_hit = 14;
+    RunCompletedEvent run_completed = 15;
+    RunErrorEvent run_error = 16;
+  }
+}
+
+message RunStartedEvent {
+  string model = 1;
+}
+
+message TextDeltaEvent {
+  string text = 1;
+}
+
+message ToolCallEvent {
+  string tool_call_id = 1;
+  string tool_name = 2;
+  string arguments_json = 3;
+}
+
+message ToolResultEvent {
+  string tool_call_id = 1;
+  string tool_name = 2;
+  string result_json = 3;
+  bool is_error = 4;
+}
+
+message MemoryHitEvent {
+  string memory_id = 1;
+  string content = 2;
+  double score = 3;
+}
+
+message RunCompletedEvent {
+  string final_text = 1;
+  int32 steps = 2;
+}
+
+message RunErrorEvent {
+  string code = 1;
+  string message = 2;
+}

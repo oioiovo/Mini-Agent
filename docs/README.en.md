@@ -1,0 +1,94 @@
+# Mini-Agent
+
+> Languages: [中文](../README.md) | [English](README.en.md)
+
+A TypeScript single-core Agent Runtime that exposes a streaming API over Connect (HTTP, with gRPC enabled by default). Thin clients are available for TypeScript, Python, and other languages.
+
+## Features
+
+- Agent loop (multi-step tool calls, cancellation, timeouts, max steps)
+- Local / HTTP / MCP tools
+- Session (in-memory or SQLite) + Memory (retrieval / summarization)
+- OpenAI-compatible LLM Provider
+- Connect HTTP API + API Key auth + basic rate limiting
+- Thin clients: `@mini-agent/sdk` (TypeScript) and `mini-agent` (Python)
+
+## Quick start
+
+```bash
+pnpm install
+pnpm generate
+pnpm build
+cp .env.example .env   # set OPENAI_API_KEY
+pnpm --filter @mini-agent/server start
+```
+
+In another terminal:
+
+```bash
+pnpm --filter @mini-agent/example-ts-basic start
+```
+
+Python:
+
+```bash
+pip install -r examples/py-basic/requirements.txt
+python examples/py-basic/main.py
+```
+
+## Repository layout
+
+```text
+proto/agent/v1          # single contract
+packages/runtime        # Agent loop / tools / mcp / memory / providers
+packages/server         # Connect HTTP server (gRPC on by default)
+packages/shared         # generated protobuf / Connect types
+packages/sdk-ts         # TypeScript thin client
+packages/sdk-py         # Python thin client
+examples/ts-basic
+examples/py-basic
+docs/
+  zh/                   # Chinese docs
+  en/                   # English docs
+  README.en.md          # this file
+```
+
+## Embed in-process (TypeScript)
+
+```ts
+import { createAgent, defineLocalTool } from "@mini-agent/runtime";
+
+const agent = await createAgent({
+  tools: [
+    defineLocalTool({
+      name: "echo",
+      description: "Echo text",
+      inputSchema: {
+        type: "object",
+        properties: { text: { type: "string" } },
+        required: ["text"],
+      },
+      execute: ({ text }) => ({ text }),
+    }),
+  ],
+});
+
+const session = await agent.createSession();
+for await (const event of agent.run({ sessionId: session.id, message: "hi" })) {
+  console.log(event);
+}
+```
+
+## Docs
+
+- [Getting Started](en/getting-started.md) · [快速开始](zh/getting-started.md)
+- [Architecture](en/architecture.md) · [架构](zh/architecture.md)
+- [Docs index](README.md)
+
+## Development
+
+```bash
+pnpm generate   # buf generate
+pnpm test
+pnpm build
+```

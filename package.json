@@ -1,0 +1,23 @@
+{
+  "name": "mini-agent",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Mini-Agent: TypeScript agent runtime with thin multi-language clients",
+  "packageManager": "pnpm@9.15.4",
+  "scripts": {
+    "build": "pnpm -r run build",
+    "dev": "pnpm --filter @mini-agent/server dev",
+    "generate": "buf generate",
+    "lint": "pnpm -r --if-present run lint",
+    "test": "pnpm -r --if-present run test",
+    "typecheck": "pnpm -r --if-present run typecheck"
+  },
+  "devDependencies": {
+    "@bufbuild/buf": "^1.50.0",
+    "@bufbuild/protoc-gen-es": "^2.2.5",
+    "typescript": "^5.8.2"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
