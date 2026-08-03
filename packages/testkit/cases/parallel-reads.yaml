@@ -1,0 +1,21 @@
+id: parallel-reads
+description: Auto-allow read tools in the same step run in parallel
+modes: [unit]
+tags: [parallel]
+system_prompt: Call both tools.
+prompt: run both
+builtins: false
+auto_approve: true
+hooks:
+  before: ../hooks/register-parallel-tools.ts
+  after: ../hooks/assert-parallel-timing.ts
+fake_llm:
+  - tool_calls:
+      - name: slow_a
+        arguments: {}
+      - name: slow_b
+        arguments: {}
+  - content: "done"
+expect:
+  tools_called: [slow_a, slow_b]
+  events_include: [toolCall, runCompleted]

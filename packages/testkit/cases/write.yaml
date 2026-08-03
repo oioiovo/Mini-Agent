@@ -1,0 +1,20 @@
+id: write
+description: write_file requires approval then succeeds
+modes: [unit, e2e, live]
+tags: [tools, builtins, approval]
+system_prompt: Use write_file when asked to create files. Be concise.
+prompt: Create {{file_name}} in the workspace using write_file with exact content {{write_token}}
+builtins: true
+auto_approve: false
+hooks:
+  before: ../hooks/prepare-write-vars.ts
+  after: ../hooks/assert-write-file.ts
+fake_llm:
+  - tool_calls:
+      - name: write_file
+        arguments: { path: "{{file_name}}", content: "{{write_token}}" }
+  - content: "Created the file."
+expect:
+  tools_called: [write_file]
+  approval_required: true
+  events_include: [toolCall, runCompleted]

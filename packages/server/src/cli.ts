@@ -1,28 +1,10 @@
 #!/usr/bin/env node
 import { existsSync } from "node:fs";
-import { dirname, isAbsolute, resolve } from "node:path";
+import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { config as loadEnv } from "dotenv";
+import { findRepoRoot, resolveFromRepo } from "./paths.js";
 import { createMiniAgentServer } from "./server.js";
-
-function findRepoRoot(): string {
-  const starts = [
-    process.cwd(),
-    resolve(dirname(fileURLToPath(import.meta.url)), ".."),
-    resolve(dirname(fileURLToPath(import.meta.url)), "../.."),
-    resolve(dirname(fileURLToPath(import.meta.url)), "../../.."),
-  ];
-  for (const start of starts) {
-    let dir = start;
-    for (let i = 0; i < 8; i += 1) {
-      if (existsSync(resolve(dir, "pnpm-workspace.yaml"))) return dir;
-      const parent = dirname(dir);
-      if (parent === dir) break;
-      dir = parent;
-    }
-  }
-  return process.cwd();
-}
 
 function loadDotEnv(repoRoot: string): string | undefined {
   const candidates = [
@@ -31,7 +13,7 @@ function loadDotEnv(repoRoot: string): string | undefined {
   ];
   for (const path of candidates) {
     if (existsSync(path)) {
-      loadEnv({ path });
+      loadEnv({ path, override: true });
       return path;
     }
   }
@@ -39,13 +21,14 @@ function loadDotEnv(repoRoot: string): string | undefined {
   return undefined;
 }
 
-function resolveFromRepo(repoRoot: string, value: string | undefined, fallback: string): string {
-  const raw = value?.trim() || fallback;
-  return isAbsolute(raw) ? raw : resolve(repoRoot, raw);
-}
-
 async function main() {
-  const repoRoot = findRepoRoot();
+  const here = dirname(fileURLToPath(import.meta.url));
+  const repoRoot = findRepoRoot([
+    process.cwd(),
+    resolve(here, ".."),
+    resolve(here, "../.."),
+    resolve(here, "../../.."),
+  ]);
   const envPath = loadDotEnv(repoRoot);
 
   const [, , command = "serve", ...rest] = process.argv;

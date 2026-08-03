@@ -1,0 +1,18 @@
+id: read-delta
+description: Large read_file emits toolResultDelta chunks
+modes: [unit, e2e, live]
+tags: [tools, builtins, streaming]
+system_prompt: Use read_file. Be concise.
+prompt: Use read_file to read {{fixture_path}}. Then reply with only the marker string found in the file.
+builtins: true
+hooks:
+  before: ../hooks/ensure-large-fixture.ts
+  after: ../hooks/assert-read-deltas.ts
+fake_llm:
+  - tool_calls:
+      - name: read_file
+        arguments: { path: "{{fixture_path}}" }
+  - content: "{{fixture_marker}}"
+expect:
+  tools_called: [read_file]
+  min_deltas: 1

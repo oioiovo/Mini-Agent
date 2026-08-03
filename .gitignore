@@ -18,3 +18,4 @@ venv/
 .turbo/
 data/
 workspace/
+artifacts/

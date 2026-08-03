@@ -128,6 +128,34 @@ importers:
         specifier: ^5.8.2
         version: 5.9.3
 
+  packages/testkit:
+    dependencies:
+      '@mini-agent/runtime':
+        specifier: workspace:*
+        version: link:../runtime
+      '@mini-agent/sdk':
+        specifier: workspace:*
+        version: link:../sdk-ts
+      '@mini-agent/server':
+        specifier: workspace:*
+        version: link:../server
+      dotenv:
+        specifier: ^17.4.2
+        version: 17.4.2
+      yaml:
+        specifier: ^2.7.0
+        version: 2.9.0
+    devDependencies:
+      '@types/node':
+        specifier: ^22.13.10
+        version: 22.20.1
+      tsx:
+        specifier: ^4.19.3
+        version: 4.23.5
+      typescript:
+        specifier: ^5.8.2
+        version: 5.9.3
+
 packages:
 
   '@bufbuild/buf-darwin-arm64@1.72.0':
@@ -768,6 +796,11 @@ packages:
   wrappy@1.0.2:
     resolution: {integrity: sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==}
 
+  yaml@2.9.0:
+    resolution: {integrity: sha512-2AvhNX3mb8zd6Zy7INTtSpl1F15HW6Wnqj0srWlkKLcpYl/gMIMJiyuGq2KeI2YFxUPjdlB+3Lc10seMLtL4cA==}
+    engines: {node: '>= 14.6'}
+    hasBin: true
+
   zod-to-json-schema@3.25.2:
     resolution: {integrity: sha512-O/PgfnpT1xKSDeQYSCfRI5Gy3hPf91mKVDuYLUHZJMiDFptvP41MSnWofm8dnCm0256ZNfZIM7DSzuSMAFnjHA==}
     peerDependencies:
@@ -1363,6 +1396,8 @@ snapshots:
       isexe: 2.0.0
 
   wrappy@1.0.2: {}
+
+  yaml@2.9.0: {}
 
   zod-to-json-schema@3.25.2(zod@3.25.76):
     dependencies:

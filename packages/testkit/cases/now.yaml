@@ -1,0 +1,15 @@
+id: now
+description: Builtin now tool returns a non-empty answer
+modes: [unit, e2e, live]
+tags: [tools, builtins]
+system_prompt: Use the now tool for the current time. Be concise.
+prompt: What time is it right now? Use the now tool.
+builtins: true
+fake_llm:
+  - tool_calls:
+      - name: now
+        arguments: {}
+  - content: "Current time provided by tool."
+expect:
+  tools_called: [now]
+  events_include: [toolCall, runCompleted]

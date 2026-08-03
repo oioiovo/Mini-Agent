@@ -1,4 +1,7 @@
 import assert from "node:assert/strict";
+import { mkdtempSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { describe, it } from "node:test";
 import {
   createAgent,
@@ -233,6 +236,73 @@ describe("server e2e", () => {
         "textDelta",
         "runCompleted",
       ]);
+    } finally {
+      await server.close();
+    }
+  });
+
+  it("reads workspace files through builtin read_file over Connect", async () => {
+    const workspace = mkdtempSync(join(tmpdir(), "mini-agent-ws-"));
+    writeFileSync(join(workspace, "notes.txt"), "line-one\nline-two\n");
+
+    let step = 0;
+    const llm = new FakeLlmClient(async () => {
+      step += 1;
+      if (step === 1) {
+        return {
+          finishReason: "tool_calls",
+          message: {
+            role: "assistant",
+            content: "",
+            toolCalls: [
+              {
+                id: "r1",
+                name: "read_file",
+                arguments: JSON.stringify({ path: "notes.txt" }),
+              },
+            ],
+          },
+        };
+      }
+      return {
+        finishReason: "stop",
+        message: { role: "assistant", content: "2 lines" },
+      };
+    });
+
+    const agent = await createAgent({
+      llm,
+      sessionBackend: "memory",
+      workspaceRoot: workspace,
+      includeBuiltinTools: true,
+      policy: { autoApprove: true },
+      tools: [],
+    });
+
+    const server = await createMiniAgentServer({
+      host: "127.0.0.1",
+      port: 0,
+      apiKey: "test-key",
+      agent,
+    });
+
+    try {
+      const client = new MiniAgentClient({
+        baseUrl: `http://127.0.0.1:${server.port}`,
+        apiKey: "test-key",
+      });
+      const session = await client.createSession();
+      let toolResult = "";
+      for await (const event of client.run({
+        sessionId: session.id,
+        message: "read notes",
+      })) {
+        if (event.payload.case === "toolResult") {
+          toolResult = event.payload.value.resultJson;
+        }
+      }
+      assert.match(toolResult, /line-one/);
+      assert.doesNotMatch(toolResult, /"error"/);
     } finally {
       await server.close();
     }

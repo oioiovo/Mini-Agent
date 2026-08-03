@@ -1,10 +1,10 @@
 {
-  "name": "@mini-agent/server",
+  "name": "@mini-agent/testkit",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "bin": {
-    "mini-agent": "./dist/cli.js"
+    "mini-agent-testkit": "./dist/cli.js"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -14,26 +14,24 @@
       "import": "./dist/index.js"
     }
   },
-  "files": [
-    "dist"
-  ],
+  "files": ["dist", "cases", "hooks"],
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "dev": "tsx watch src/cli.ts serve",
-    "start": "node dist/cli.js serve",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "node --import tsx --test src/paths.test.ts src/cli.smoke.test.ts"
+    "start": "tsx src/cli.ts",
+    "test": "tsx src/cli.ts --mode unit,e2e",
+    "test:unit": "tsx src/cli.ts --mode unit",
+    "test:e2e": "tsx src/cli.ts --mode e2e",
+    "test:live": "tsx src/cli.ts --mode live"
   },
   "dependencies": {
-    "@bufbuild/protobuf": "^2.2.5",
-    "@connectrpc/connect": "^2.0.2",
-    "@connectrpc/connect-node": "^2.0.2",
     "@mini-agent/runtime": "workspace:*",
-    "@mini-agent/shared": "workspace:*",
-    "dotenv": "^17.4.2"
+    "@mini-agent/sdk": "workspace:*",
+    "@mini-agent/server": "workspace:*",
+    "dotenv": "^17.4.2",
+    "yaml": "^2.7.0"
   },
   "devDependencies": {
-    "@mini-agent/sdk": "workspace:^",
     "@types/node": "^22.13.10",
     "tsx": "^4.19.3",
     "typescript": "^5.8.2"

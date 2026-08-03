@@ -88,7 +88,19 @@ for await (const event of agent.run({ sessionId: session.id, message: "hi" })) {
 ## Development
 
 ```bash
-pnpm generate   # buf generate
-pnpm test
+pnpm generate
+pnpm test       # build + residual node:test + testkit unit,e2e (FakeLlm)
+pnpm test:unit
+pnpm test:e2e
+pnpm test:live  # requires running server + MINI_AGENT_LIVE_TEST=1
 pnpm build
+```
+
+Unified harness: `packages/testkit` (YAML cases + optional TS hooks). Reports land in `artifacts/test-runs/<ts>/report.md` and `report.json`.
+
+```bash
+pnpm testkit -- --list
+pnpm testkit -- --mode live --only calculator
+$env:MINI_AGENT_LIVE_TEST=1
+pnpm test:live -- --only write,read
 ```

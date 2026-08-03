@@ -42,6 +42,7 @@ python examples/py-basic/main.py
 proto/agent/v1          # 唯一契约
 packages/runtime        # Agent loop / tools / mcp / memory / providers
 packages/server         # Connect HTTP 服务（gRPC 默认开启）
+packages/testkit        # 统一测试（YAML + hooks，unit/e2e/live）
 packages/shared         # 生成的 protobuf / Connect 类型
 packages/sdk-ts         # TypeScript 薄客户端
 packages/sdk-py         # Python 薄客户端
@@ -88,6 +89,23 @@ for await (const event of agent.run({ sessionId: session.id, message: "hi" })) {
 
 ```bash
 pnpm generate   # buf generate
-pnpm test
+pnpm test       # build + policy/paths/CLI smoke + testkit unit,e2e（FakeLlm）
+pnpm test:unit  # testkit --mode unit
+pnpm test:e2e   # testkit --mode e2e
+pnpm test:live  # testkit --mode live（需已启动 server + MINI_AGENT_LIVE_TEST=1）
 pnpm build
 ```
+
+统一测试包 [`packages/testkit`](packages/testkit)：YAML 用例 + 可选 TS hooks，三种 mode 共用；每次运行写出 `artifacts/test-runs/<ts>/report.md`（人类）与 `report.json`（AI），以及 `logs/`。
+
+```bash
+pnpm testkit -- --list
+pnpm testkit -- --mode unit,e2e
+pnpm testkit -- --mode live --only calculator
+
+$env:MINI_AGENT_LIVE_TEST=1
+pnpm test:live
+pnpm test:live -- --only write,read
+```
+
+残留 `node:test`：policy、paths、CLI smoke（非 agent 声明式场景）。

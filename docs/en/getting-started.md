@@ -76,6 +76,19 @@ for await (const event of client.run({
 }
 ```
 
+## Testing (testkit)
+
+Agent cases live in `packages/testkit/cases/*.yaml` with optional hooks under `packages/testkit/hooks/`.
+
+```bash
+pnpm test
+pnpm testkit -- --list
+set MINI_AGENT_LIVE_TEST=1
+pnpm test:live -- --only calculator
+```
+
+Reports: `artifacts/test-runs/<timestamp>/report.md` and `report.json`.
+
 ## Python client
 
 ```bash

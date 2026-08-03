@@ -1,0 +1,19 @@
+id: echo-stream
+description: Custom tool streams toolResultDelta over Connect / in-process
+modes: [unit, e2e]
+tags: [streaming]
+system_prompt: Call the streamy tool.
+prompt: Please stream.
+builtins: false
+auto_approve: true
+hooks:
+  before: ../hooks/register-streamy-tool.ts
+fake_llm:
+  - tool_calls:
+      - name: streamy
+        arguments: {}
+  - content: "ok"
+expect:
+  tools_called: [streamy]
+  min_deltas: 2
+  events_include: [toolResultDelta, runCompleted]

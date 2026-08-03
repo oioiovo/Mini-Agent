@@ -1,0 +1,19 @@
+id: approval-write-tool
+description: Custom write tool requires ResolveToolApproval
+modes: [unit, e2e]
+tags: [approval]
+system_prompt: Call risky_write.
+prompt: write please
+builtins: false
+auto_approve: false
+hooks:
+  before: ../hooks/register-risky-write-tool.ts
+fake_llm:
+  - tool_calls:
+      - name: risky_write
+        arguments: { path: "x.txt", content: "hi" }
+  - content: "done"
+expect:
+  tools_called: [risky_write]
+  approval_required: true
+  events_include: [toolApprovalRequired, toolCall, runCompleted]

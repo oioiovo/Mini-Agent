@@ -76,6 +76,19 @@ for await (const event of client.run({
 }
 ```
 
+## 测试（testkit）
+
+Agent 行为用例在 `packages/testkit/cases/*.yaml`，复杂断言放在 `packages/testkit/hooks/`。
+
+```bash
+pnpm test                 # FakeLlm：unit + e2e + 残余 node:test
+pnpm testkit -- --list
+$env:MINI_AGENT_LIVE_TEST=1
+pnpm test:live -- --only calculator
+```
+
+报告目录：`artifacts/test-runs/<timestamp>/report.md` 与 `report.json`。
+
 ## Python 客户端
 
 ```bash

@@ -1,0 +1,17 @@
+id: read
+description: Builtin read_file against workspace fixture
+modes: [unit, e2e, live]
+tags: [tools, builtins, workspace]
+system_prompt: Be concise. Use read_file for file contents. Do not invent file contents.
+prompt: Read {{fixture_path}} from the workspace with the read_file tool and quote the marker string you find.
+builtins: true
+hooks:
+  before: ../hooks/ensure-large-fixture.ts
+fake_llm:
+  - tool_calls:
+      - name: read_file
+        arguments: { path: "{{fixture_path}}" }
+  - content: "Marker is {{fixture_marker}}"
+expect:
+  tools_called: [read_file]
+  final_text_matches: ["LIVE_FIXTURE_MARKER_7f3a"]

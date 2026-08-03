@@ -1,0 +1,16 @@
+id: calculator
+description: Calculator returns 84
+modes: [unit, e2e, live]
+tags: [tools, builtins]
+system_prompt: Be concise. Prefer the calculator tool for arithmetic.
+prompt: What is (12 + 30) * 2? Use the calculator tool.
+builtins: true
+fake_llm:
+  - tool_calls:
+      - name: calculator
+        arguments: { expression: "(12 + 30) * 2" }
+  - content: "The answer is 84"
+expect:
+  tools_called: [calculator]
+  final_text_matches: ["84"]
+  events_include: [toolCall, runCompleted]

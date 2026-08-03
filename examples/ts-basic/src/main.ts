@@ -5,7 +5,7 @@ import { MiniAgentClient } from "@mini-agent/sdk";
 
 for (const path of [resolve(process.cwd(), ".env"), resolve(process.cwd(), "../../.env")]) {
   if (existsSync(path)) {
-    loadEnv({ path });
+    loadEnv({ path, override: true });
     break;
   }
 }
