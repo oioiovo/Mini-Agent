@@ -124,6 +124,24 @@ export async function ingestClientEvent(
       trace.finalText = event.payload.value.finalText;
       ctx.log("run.completed", { chars: event.payload.value.finalText.length });
       break;
+    case "subagentStarted":
+      ctx.log("subagent.started", {
+        id: event.payload.value.subagentId,
+        prompt: event.payload.value.prompt,
+      });
+      break;
+    case "subagentProgress":
+      ctx.log("subagent.progress", {
+        kind: event.payload.value.kind,
+        tool: event.payload.value.toolName,
+      });
+      break;
+    case "subagentCompleted":
+      ctx.log("subagent.completed", {
+        id: event.payload.value.subagentId,
+        isError: event.payload.value.isError,
+      });
+      break;
     case "runError":
       ctx.log("run.error", {
         code: event.payload.value.code,

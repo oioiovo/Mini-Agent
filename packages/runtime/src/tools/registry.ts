@@ -75,6 +75,7 @@ export class ToolRegistry {
       const result = await tool.execute(args, {
         ...ctx,
         emitDelta: ctx.emitDelta ?? (() => undefined),
+        emitEvent: ctx.emitEvent ?? (() => undefined),
       });
       return {
         resultJson: JSON.stringify(result ?? null),

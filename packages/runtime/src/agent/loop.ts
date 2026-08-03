@@ -428,7 +428,11 @@ export class AgentLoop {
 
     let sequence = 0;
     const startedAt = nowMs();
-    const toolTimeout = AbortSignal.timeout(this.toolTimeoutMs);
+    const toolTimeoutMs =
+      call.name === "run_subagent"
+        ? Math.max(this.toolTimeoutMs, 120_000)
+        : this.toolTimeoutMs;
+    const toolTimeout = AbortSignal.timeout(toolTimeoutMs);
     const executed = await this.options.tools.execute(call.name, call.arguments, {
       sessionId,
       runId,
@@ -444,6 +448,9 @@ export class AgentLoop {
           sequence: sequence++,
           timestampMs: nowMs(),
         });
+      },
+      emitEvent: (event: AgentEvent) => {
+        push(event);
       },
     });
     const durationMs = nowMs() - startedAt;

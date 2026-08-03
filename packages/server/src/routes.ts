@@ -166,6 +166,47 @@ function toProtoEvent(event: RuntimeEvent): AgentEvent {
           },
         },
       });
+    case "subagent.started":
+      return create(AgentEventSchema, {
+        ...base,
+        payload: {
+          case: "subagentStarted",
+          value: {
+            subagentId: event.subagentId,
+            childRunId: event.childRunId,
+            childSessionId: event.childSessionId,
+            prompt: event.prompt,
+          },
+        },
+      });
+    case "subagent.progress":
+      return create(AgentEventSchema, {
+        ...base,
+        payload: {
+          case: "subagentProgress",
+          value: {
+            subagentId: event.subagentId,
+            childRunId: event.childRunId,
+            kind: event.kind,
+            text: event.text ?? "",
+            toolName: event.toolName ?? "",
+            payloadJson: event.payloadJson ?? "",
+          },
+        },
+      });
+    case "subagent.completed":
+      return create(AgentEventSchema, {
+        ...base,
+        payload: {
+          case: "subagentCompleted",
+          value: {
+            subagentId: event.subagentId,
+            childRunId: event.childRunId,
+            finalText: event.finalText,
+            isError: event.isError,
+          },
+        },
+      });
   }
 }
 

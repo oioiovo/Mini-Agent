@@ -39,6 +39,8 @@ export interface ToolContext {
   logger: Logger;
   /** Optional streaming chunks for clients; does not replace final tool result. */
   emitDelta(chunk: string): void;
+  /** Push a parent-run event (e.g. subagent progress) onto the active run stream. */
+  emitEvent(event: AgentEvent): void;
 }
 
 export interface Logger {
@@ -115,6 +117,38 @@ export type AgentEvent =
       sessionId: string;
       code: string;
       message: string;
+      timestampMs: number;
+    }
+  | {
+      type: "subagent.started";
+      runId: string;
+      sessionId: string;
+      subagentId: string;
+      childRunId: string;
+      childSessionId: string;
+      prompt: string;
+      timestampMs: number;
+    }
+  | {
+      type: "subagent.progress";
+      runId: string;
+      sessionId: string;
+      subagentId: string;
+      childRunId: string;
+      kind: "text_delta" | "tool_call" | "tool_result" | "tool_result_delta" | "error";
+      text?: string;
+      toolName?: string;
+      payloadJson?: string;
+      timestampMs: number;
+    }
+  | {
+      type: "subagent.completed";
+      runId: string;
+      sessionId: string;
+      subagentId: string;
+      childRunId: string;
+      finalText: string;
+      isError: boolean;
       timestampMs: number;
     };
 

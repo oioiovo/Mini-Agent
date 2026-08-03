@@ -39,9 +39,10 @@ pnpm dev
 
 Health check: `GET http://127.0.0.1:8787/healthz`
 
-Builtin tools: `now`, `calculator`, `todo_write`, `todo_read`, `list_dir`, `read_file`, `write_file`, `http_request`.  
+Builtin tools: `now`, `calculator`, `todo_write`, `todo_read`, `list_dir`, `read_file`, `write_file`, `http_request`, `run_subagent`.  
 `write_file` / `http_request` require approval unless `MINI_AGENT_AUTO_APPROVE=true`.  
-`todo_write` / `todo_read` persist a per-session task list under workspace `.mini-agent/todos/<sessionId>.json` (no approval).
+`todo_write` / `todo_read` persist a per-session task list under workspace `.mini-agent/todos/<sessionId>.json` (no approval).  
+`run_subagent` starts a read-only async child agent (isolated session). The parent run stream emits `subagentStarted` / `subagentProgress` / `subagentCompleted`; the tool result contains the child's final text. Default child tools: `now`, `calculator`, `list_dir`, `read_file`, `todo_*` (no nesting).
 
 Tool execution:
 - Tools may push `toolResultDelta` via `emitDelta` (client observability; the model still receives the final full `toolResult`)

@@ -1,4 +1,5 @@
 import { AgentLoop, type AgentLoopOptions, type RunInput } from "./agent/loop.js";
+import { SubagentRunner, type SubagentOptions } from "./agent/subagent.js";
 import { InMemoryMemoryStore } from "./memory/store.js";
 import type { MemoryStore } from "./types.js";
 import { McpManager, type McpServerConfig } from "./mcp/manager.js";
@@ -33,6 +34,7 @@ export interface CreateAgentOptions {
   includeBuiltinTools?: boolean;
   workspaceRoot?: string;
   policy?: ToolPolicyOptions;
+  subagent?: SubagentOptions;
   mcp?: { servers?: McpServerConfig[] };
   memory?: {
     shortTerm?: "session" | "memory";
@@ -152,6 +154,18 @@ export async function createAgent(options: CreateAgentOptions = {}): Promise<Min
     approvals,
   };
   const loop = new AgentLoop(loopOptions);
+
+  const subagentRunner = new SubagentRunner({
+    llm,
+    sessions,
+    memory,
+    parentTools: tools,
+    logger,
+    defaultModel,
+    policy,
+    options: options.subagent,
+  });
+  tools.upsert(subagentRunner.createTool());
 
   return {
     loop,

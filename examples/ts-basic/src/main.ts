@@ -75,6 +75,25 @@ async function main() {
           event.payload.value.resultJson,
         );
         break;
+      case "subagentStarted":
+        console.log(
+          `subagent ▶ ${event.payload.value.subagentId}`,
+          event.payload.value.prompt,
+        );
+        break;
+      case "subagentProgress":
+        console.log(
+          `subagent … ${event.payload.value.kind}`,
+          event.payload.value.toolName || event.payload.value.text?.slice(0, 80),
+        );
+        break;
+      case "subagentCompleted":
+        console.log(
+          `subagent ■ ${event.payload.value.subagentId}`,
+          event.payload.value.isError ? "error" : "ok",
+          event.payload.value.finalText.slice(0, 120),
+        );
+        break;
       case "memoryHit":
         console.log(
           "memory:",

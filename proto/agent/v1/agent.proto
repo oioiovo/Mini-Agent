@@ -134,6 +134,9 @@ message AgentEvent {
     RunErrorEvent run_error = 16;
     ToolApprovalRequiredEvent tool_approval_required = 17;
     ToolResultDeltaEvent tool_result_delta = 18;
+    SubagentStartedEvent subagent_started = 19;
+    SubagentProgressEvent subagent_progress = 20;
+    SubagentCompletedEvent subagent_completed = 21;
   }
 }
 
@@ -189,4 +192,28 @@ message RunCompletedEvent {
 message RunErrorEvent {
   string code = 1;
   string message = 2;
+}
+
+message SubagentStartedEvent {
+  string subagent_id = 1;
+  string child_run_id = 2;
+  string child_session_id = 3;
+  string prompt = 4;
+}
+
+message SubagentProgressEvent {
+  string subagent_id = 1;
+  string child_run_id = 2;
+  // text_delta | tool_call | tool_result | tool_result_delta | error
+  string kind = 3;
+  string text = 4;
+  string tool_name = 5;
+  string payload_json = 6;
+}
+
+message SubagentCompletedEvent {
+  string subagent_id = 1;
+  string child_run_id = 2;
+  string final_text = 3;
+  bool is_error = 4;
 }
