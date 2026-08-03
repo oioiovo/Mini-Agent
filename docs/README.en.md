@@ -2,13 +2,13 @@
 
 > Languages: [中文](../README.md) | [English](README.en.md)
 
-A TypeScript single-core Agent Runtime that exposes a streaming API over Connect (HTTP, with gRPC enabled by default). Use the thin `@mini-agent/client`, or embed `@mini-agent/runtime` in-process.
+A TypeScript single-core Agent Runtime that exposes a streaming API over Connect HTTP (HTTP/1.1 by default). Use the thin `@mini-agent/client`, or embed `@mini-agent/runtime` in-process.
 
 ## Features
 
 - Agent loop (multi-step tool calls, cancellation, timeouts, max steps)
 - Local / HTTP / MCP tools (including `todo_write` / `todo_read`, async read-only `run_subagent`)
-- Session (in-memory or SQLite) + Memory (retrieval / summarization)
+- Session (SQLite by default, in-memory available) + Memory (bag-of-words retrieval / summarization)
 - OpenAI-compatible LLM Provider
 - Connect HTTP API + API Key auth + basic rate limiting
 - `@mini-agent/client` (Connect thin client)
@@ -34,7 +34,7 @@ pnpm --filter @mini-agent/example-ts-basic start
 ```text
 proto/agent/v1          # single contract
 packages/runtime        # Agent loop / tools / mcp / memory / providers
-packages/server         # Connect HTTP server (gRPC on by default)
+packages/server         # Connect HTTP server (HTTP/1.1 by default)
 packages/shared         # generated protobuf / Connect types
 packages/testkit        # unified tests (YAML + hooks)
 packages/client         # Connect thin client (@mini-agent/client)

@@ -2,13 +2,13 @@
 
 > 语言：[中文](README.md) | [English](docs/README.en.md)
 
-TypeScript 单核心 Agent Runtime，通过 Connect（HTTP，默认同时兼容 gRPC）对外提供流式 API；可用 `@mini-agent/client` 薄客户端接入，或同进程直接嵌入 `@mini-agent/runtime`。
+TypeScript 单核心 Agent Runtime，通过 Connect over HTTP 对外提供流式 API（默认 HTTP/1.1）；可用 `@mini-agent/client` 薄客户端接入，或同进程直接嵌入 `@mini-agent/runtime`。
 
 ## 功能
 
 - Agent loop（多步工具调用、取消、超时、最大步数）
 - Local / HTTP / MCP 工具（含 `todo_write` / `todo_read`、异步只读 `run_subagent`）
-- Session（内存或 SQLite）+ Memory（检索 / 摘要）
+- Session（默认 SQLite，亦可内存）+ Memory（词袋检索 / 摘要）
 - OpenAI-compatible LLM Provider
 - Connect HTTP API + API Key 鉴权 + 基础限流
 - `@mini-agent/client`（Connect 薄客户端）
@@ -34,7 +34,7 @@ pnpm --filter @mini-agent/example-ts-basic start
 ```text
 proto/agent/v1          # 唯一契约
 packages/runtime        # Agent loop / tools / mcp / memory / providers
-packages/server         # Connect HTTP 服务（gRPC 默认开启）
+packages/server         # Connect HTTP 服务（默认 HTTP/1.1）
 packages/testkit        # 统一测试（YAML + hooks，unit/e2e/live）
 packages/shared         # 生成的 protobuf / Connect 类型
 packages/client         # Connect 薄客户端（@mini-agent/client）
@@ -99,4 +99,4 @@ pnpm test:live
 pnpm test:live -- --only write,read
 ```
 
-残留 `node:test`：policy、paths、CLI smoke（非 agent 声明式场景）。
+残留 `node:test`：runtime（policy / todo / subagent）与 server（paths / CLI smoke）。

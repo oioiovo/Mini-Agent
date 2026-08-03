@@ -17,15 +17,21 @@ pnpm build
 cp .env.example .env
 ```
 
-在 `.env` 中设置：
+在 `.env` 中设置（完整模板见仓库根目录 `.env.example`）：
 
 ```bash
 OPENAI_API_KEY=sk-...
+OPENAI_BASE_URL=https://api.openai.com/v1
+OPENAI_MODEL=gpt-4o-mini
 MINI_AGENT_API_KEY=dev-key
 MINI_AGENT_PORT=8787
+# 相对路径相对 monorepo 根目录解析
+MINI_AGENT_DATA_DIR=./data
 MINI_AGENT_WORKSPACE=./workspace
 # 本地调试可打开自动审批（生产请保持 false）
 MINI_AGENT_AUTO_APPROVE=false
+# 是否允许 http_request 访问私网 / LAN
+MINI_AGENT_HTTP_ALLOW_PRIVATE=false
 ```
 
 ## 启动 Runtime 服务
@@ -82,8 +88,9 @@ for await (const event of client.run({
 Agent 行为用例在 `packages/testkit/cases/*.yaml`，复杂断言放在 `packages/testkit/hooks/`。
 
 ```bash
-pnpm test                 # FakeLlm：unit + e2e + 残余 node:test
+pnpm test                 # FakeLlm：unit + e2e + runtime/server 若干 node:test
 pnpm testkit -- --list
+# live 需已启动 server，并设置 MINI_AGENT_LIVE_TEST=1（可用 MINI_AGENT_URL / MINI_AGENT_API_KEY）
 $env:MINI_AGENT_LIVE_TEST=1
 pnpm test:live -- --only calculator
 ```
@@ -111,6 +118,8 @@ Runtime 会 `POST` JSON：`{ arguments, sessionId, runId }`。
 
 ## MCP
 
+支持 `stdio` / `sse` / `http` transport。示例（stdio）：
+
 ```ts
 await client.upsertMcpServer({
   name: "filesystem",
@@ -122,6 +131,6 @@ await client.upsertMcpServer({
 
 工具名会变成：`mcp.filesystem.<tool>`。
 
-## gRPC
+## 协议与传输
 
-Connect router 默认同时开启 Connect / gRPC / gRPC-Web。同一套 proto 可用 gRPC 客户端对接（建议 HTTP/2）。
+默认服务以 HTTP/1.1 提供 Connect（及 gRPC-Web 兼容编解码）。同一套 proto 也可对接 gRPC 客户端，但通常需要自行使用 HTTP/2 监听。

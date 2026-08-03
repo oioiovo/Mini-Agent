@@ -2,7 +2,7 @@
   "name": "mini-agent",
   "private": true,
   "version": "0.1.0",
-  "description": "Mini-Agent: TypeScript agent runtime with thin multi-language clients",
+  "description": "Mini-Agent: TypeScript agent runtime with Connect HTTP server and thin TypeScript client",
   "packageManager": "pnpm@9.15.4",
   "scripts": {
     "build": "pnpm -r run build",

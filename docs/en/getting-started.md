@@ -17,15 +17,21 @@ pnpm build
 cp .env.example .env
 ```
 
-Configure `.env`:
+Configure `.env` (full template: repo-root `.env.example`):
 
 ```bash
 OPENAI_API_KEY=sk-...
+OPENAI_BASE_URL=https://api.openai.com/v1
+OPENAI_MODEL=gpt-4o-mini
 MINI_AGENT_API_KEY=dev-key
 MINI_AGENT_PORT=8787
+# Relative paths resolve from the monorepo root
+MINI_AGENT_DATA_DIR=./data
 MINI_AGENT_WORKSPACE=./workspace
 # Local debug only — keep false in production
 MINI_AGENT_AUTO_APPROVE=false
+# Allow http_request to private/LAN hosts
+MINI_AGENT_HTTP_ALLOW_PRIVATE=false
 ```
 
 ## Start the runtime server
@@ -82,8 +88,9 @@ for await (const event of client.run({
 Agent cases live in `packages/testkit/cases/*.yaml` with optional hooks under `packages/testkit/hooks/`.
 
 ```bash
-pnpm test
+pnpm test                 # FakeLlm unit + e2e + residual runtime/server node:test
 pnpm testkit -- --list
+# live needs a running server plus MINI_AGENT_LIVE_TEST=1 (optional MINI_AGENT_URL / MINI_AGENT_API_KEY)
 set MINI_AGENT_LIVE_TEST=1
 pnpm test:live -- --only calculator
 ```
@@ -111,6 +118,8 @@ The Runtime will `POST` JSON: `{ arguments, sessionId, runId }`.
 
 ## MCP
 
+Supports `stdio` / `sse` / `http` transports. Example (stdio):
+
 ```ts
 await client.upsertMcpServer({
   name: "filesystem",
@@ -122,6 +131,6 @@ await client.upsertMcpServer({
 
 Tool names become: `mcp.filesystem.<tool>`.
 
-## gRPC
+## Protocol & transport
 
-The Connect router enables Connect / gRPC / gRPC-Web by default. The same proto can be used with gRPC clients (HTTP/2 recommended).
+The default server serves Connect over HTTP/1.1 (with gRPC-Web-compatible codecs). The same proto can be used with gRPC clients, but that usually requires an HTTP/2 listener.

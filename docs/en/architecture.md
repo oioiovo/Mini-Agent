@@ -4,10 +4,10 @@
 
 ## Shape
 
-Mini-Agent uses a **single-core Runtime + thin clients** design:
+Mini-Agent uses a **single-core Runtime + thin client** design:
 
 1. TypeScript `packages/runtime` implements the agent loop, tools, MCP, memory, and LLM providers.
-2. `packages/server` exposes the same capabilities over Connect HTTP, with gRPC enabled by default.
+2. `packages/server` exposes the same capabilities over Connect HTTP. The default listener is **HTTP/1.1**; the Connect adapter can codec Connect / gRPC / gRPC-Web (native gRPC usually still needs HTTP/2).
 3. `@mini-agent/client` only handles transport and typing — it does not reimplement the loop.
 
 ```mermaid
@@ -27,9 +27,11 @@ flowchart LR
 1. `run.started`
 2. Optional `memory.hit` (retrieve history / long-term memory)
 3. Assemble system + history, call the LLM
-4. If there are tool_calls: `tool.started` → execute → `tool.completed`, write results back, continue
-5. Otherwise `message.delta` + `run.completed`
+4. If there are tool_calls: may emit `message.delta` first, then `tool.started` → (optional `tool.approval_required` / `tool.result_delta` / `subagent.*`) → `tool.completed`, write results back, continue
+5. If there are no tool_calls: `message.delta` + `run.completed`
 6. On error or cancel: `run.error`
+
+Connect stream events use camelCase `payload.case` (e.g. `textDelta`, `toolCall`, `toolApprovalRequired`, `toolResultDelta`, `subagentStarted`); the list above uses runtime dotted names.
 
 ## Protocol
 
@@ -38,6 +40,7 @@ Single contract: `proto/agent/v1/agent.proto`
 - `CreateSession` / `GetSession`
 - `RunAgent` (server streaming events)
 - `CancelRun`
+- `ResolveToolApproval`
 - `ListTools`
 - `RegisterHttpTool`
 - `UpsertMcpServer`
@@ -48,8 +51,8 @@ Generate: `pnpm generate` → `packages/shared/src/gen`
 
 | Layer | Responsibility | Default |
 |-------|----------------|---------|
-| Working / Session | Multi-turn messages | SQLite (`node:sqlite`) or in-memory |
-| Long-term | Cross-session retrieval | In-memory vectors (bag-of-words similarity) |
+| Working / Session | Multi-turn messages | Server default SQLite (`node:sqlite`, `MINI_AGENT_DATA_DIR`); in-memory also available |
+| Long-term | Cross-session retrieval | In-memory bag-of-words token overlap (not embeddings / a vector DB) |
 | Summary | Compress long history | Truncation + system summary |
 
 ## Embedding vs network
@@ -60,4 +63,5 @@ Generate: `pnpm generate` → `packages/shared/src/gen`
 ## Auth & limits
 
 - Header: `x-api-key` or `Authorization: Bearer <key>`
+- Auth is skipped when `MINI_AGENT_API_KEY` is unset
 - In-memory sliding-window rate limit (default 60s / 120 req / key)
