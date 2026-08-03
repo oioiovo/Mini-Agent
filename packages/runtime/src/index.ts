@@ -23,6 +23,28 @@ export {
 } from "./tools/registry.js";
 export type { RegisteredTool, ToolHandler } from "./tools/registry.js";
 
+export { ToolPolicy, inferRisk } from "./tools/policy.js";
+export type {
+  ToolRisk,
+  PolicyDecision,
+  ToolPolicyInput,
+  ToolPolicyOptions,
+  ToolPolicyResult,
+} from "./tools/policy.js";
+
+export { ApprovalBroker } from "./tools/approval.js";
+export type { ApprovalDecision } from "./tools/approval.js";
+
+export { createBuiltinTools } from "./tools/builtins.js";
+export type { BuiltinToolsOptions } from "./tools/builtins.js";
+
+export {
+  resolveSafePath,
+  ensureWorkspaceRoot,
+  defaultWorkspaceRoot,
+  WorkspacePathError,
+} from "./tools/workspace.js";
+
 export {
   OpenAICompatibleClient,
   FakeLlmClient,

@@ -9,6 +9,7 @@ import {
   CancelRunRequestSchema,
   ListToolsRequestSchema,
   RegisterHttpToolRequestSchema,
+  ResolveToolApprovalRequestSchema,
   UpsertMcpServerRequestSchema,
   type AgentEvent,
   type Session,
@@ -91,6 +92,23 @@ export class MiniAgentClient {
       create(CancelRunRequestSchema, { runId }),
     );
     return res.cancelled;
+  }
+
+  async resolveToolApproval(input: {
+    runId: string;
+    approvalId: string;
+    decision: "approve" | "deny";
+    note?: string;
+  }): Promise<{ ok: boolean; status: string }> {
+    const res = await this.client.resolveToolApproval(
+      create(ResolveToolApprovalRequestSchema, {
+        runId: input.runId,
+        approvalId: input.approvalId,
+        decision: input.decision,
+        note: input.note ?? "",
+      }),
+    );
+    return { ok: res.ok, status: res.status };
   }
 
   async listTools(): Promise<ToolInfo[]> {

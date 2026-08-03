@@ -10,6 +10,7 @@ service AgentService {
   rpc GetSession(GetSessionRequest) returns (GetSessionResponse);
   rpc RunAgent(RunAgentRequest) returns (stream AgentEvent);
   rpc CancelRun(CancelRunRequest) returns (CancelRunResponse);
+  rpc ResolveToolApproval(ResolveToolApprovalRequest) returns (ResolveToolApprovalResponse);
   rpc ListTools(ListToolsRequest) returns (ListToolsResponse);
   rpc RegisterHttpTool(RegisterHttpToolRequest) returns (RegisterHttpToolResponse);
   rpc UpsertMcpServer(UpsertMcpServerRequest) returns (UpsertMcpServerResponse);
@@ -58,6 +59,20 @@ message CancelRunResponse {
   bool cancelled = 1;
 }
 
+message ResolveToolApprovalRequest {
+  string run_id = 1;
+  string approval_id = 2;
+  // approve | deny
+  string decision = 3;
+  string note = 4;
+}
+
+message ResolveToolApprovalResponse {
+  bool ok = 1;
+  // approved | denied | not_found | invalid
+  string status = 2;
+}
+
 message ListToolsRequest {}
 
 message ListToolsResponse {
@@ -72,6 +87,8 @@ message ToolInfo {
   string source = 4; // local | http | mcp
   bool side_effect = 5;
   bool requires_approval = 6;
+  // read | write | network | exec
+  string risk = 7;
 }
 
 message RegisterHttpToolRequest {
@@ -115,6 +132,7 @@ message AgentEvent {
     MemoryHitEvent memory_hit = 14;
     RunCompletedEvent run_completed = 15;
     RunErrorEvent run_error = 16;
+    ToolApprovalRequiredEvent tool_approval_required = 17;
   }
 }
 
@@ -137,6 +155,16 @@ message ToolResultEvent {
   string tool_name = 2;
   string result_json = 3;
   bool is_error = 4;
+}
+
+message ToolApprovalRequiredEvent {
+  string approval_id = 1;
+  string tool_call_id = 2;
+  string tool_name = 3;
+  string arguments_json = 4;
+  // read | write | network | exec
+  string risk = 5;
+  string reason = 6;
 }
 
 message MemoryHitEvent {

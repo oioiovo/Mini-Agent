@@ -3,6 +3,7 @@ import type {
   ToolContext,
   ToolDefinition,
 } from "../types.js";
+import type { ToolRisk } from "./policy.js";
 import { toErrorMessage } from "../utils.js";
 
 export type ToolHandler = (
@@ -43,9 +44,7 @@ export class ToolRegistry {
   }
 
   list(): ToolDefinition[] {
-    return [...this.tools.values()].map(
-      ({ execute: _execute, ...def }) => def,
-    );
+    return [...this.tools.values()].map(({ execute: _execute, ...def }) => def);
   }
 
   async execute(
@@ -57,14 +56,6 @@ export class ToolRegistry {
     if (!tool) {
       return {
         resultJson: JSON.stringify({ error: `Unknown tool: ${name}` }),
-        isError: true,
-      };
-    }
-    if (tool.requiresApproval) {
-      return {
-        resultJson: JSON.stringify({
-          error: "Tool requires approval and no approver is configured",
-        }),
         isError: true,
       };
     }
@@ -101,6 +92,7 @@ export function defineLocalTool(options: {
   inputSchema?: JsonSchema;
   sideEffect?: boolean;
   requiresApproval?: boolean;
+  risk?: ToolRisk;
   execute: ToolHandler;
 }): RegisteredTool {
   return {
@@ -110,6 +102,7 @@ export function defineLocalTool(options: {
     source: "local",
     sideEffect: options.sideEffect ?? false,
     requiresApproval: options.requiresApproval ?? false,
+    risk: options.risk,
     execute: options.execute,
   };
 }
@@ -122,6 +115,7 @@ export function defineHttpTool(options: {
   headers?: Record<string, string>;
   sideEffect?: boolean;
   requiresApproval?: boolean;
+  risk?: ToolRisk;
 }): RegisteredTool {
   return {
     name: options.name,
@@ -129,7 +123,8 @@ export function defineHttpTool(options: {
     inputSchema: options.inputSchema ?? { type: "object", properties: {} },
     source: "http",
     sideEffect: options.sideEffect ?? true,
-    requiresApproval: options.requiresApproval ?? false,
+    requiresApproval: options.requiresApproval ?? true,
+    risk: options.risk ?? "network",
     async execute(args, ctx) {
       const response = await fetch(options.url, {
         method: "POST",

@@ -8,12 +8,16 @@ import {
 } from "./providers/openai-compatible.js";
 import { InMemorySessionStore, type SessionStore } from "./session/memory-store.js";
 import { SqliteSessionStore } from "./session/sqlite-store.js";
+import { ApprovalBroker } from "./tools/approval.js";
+import { createBuiltinTools } from "./tools/builtins.js";
+import { ToolPolicy, type ToolPolicyOptions } from "./tools/policy.js";
 import {
   ToolRegistry,
   defineHttpTool,
   defineLocalTool,
   type RegisteredTool,
 } from "./tools/registry.js";
+import { defaultWorkspaceRoot, ensureWorkspaceRoot } from "./tools/workspace.js";
 import type { AgentEvent, LlmClient, Logger, ToolDefinition } from "./types.js";
 import { consoleLogger } from "./utils.js";
 
@@ -26,6 +30,9 @@ export interface CreateAgentOptions {
   };
   llm?: LlmClient;
   tools?: RegisteredTool[];
+  includeBuiltinTools?: boolean;
+  workspaceRoot?: string;
+  policy?: ToolPolicyOptions;
   mcp?: { servers?: McpServerConfig[] };
   memory?: {
     shortTerm?: "session" | "memory";
@@ -38,6 +45,8 @@ export interface CreateAgentOptions {
   logger?: Logger;
   maxSteps?: number;
   timeoutMs?: number;
+  toolTimeoutMs?: number;
+  approvalTimeoutMs?: number;
   systemPrompt?: string;
 }
 
@@ -48,11 +57,21 @@ export interface MiniAgent {
   memory: MemoryStore;
   mcp: McpManager;
   llm: LlmClient;
+  approvals: ApprovalBroker;
+  policy: ToolPolicy;
+  workspaceRoot: string;
   defaultModel: string;
   createSession(input?: {
     metadata?: Record<string, string>;
     systemPrompt?: string;
-  }): Promise<{ id: string; createdAtMs: number; updatedAtMs: number; metadata: Record<string, string>; systemPrompt: string; messageCount: number }>;
+  }): Promise<{
+    id: string;
+    createdAtMs: number;
+    updatedAtMs: number;
+    metadata: Record<string, string>;
+    systemPrompt: string;
+    messageCount: number;
+  }>;
   getSession(sessionId: string): Promise<
     | {
         id: string;
@@ -66,6 +85,11 @@ export interface MiniAgent {
   >;
   run(input: RunInput): AsyncGenerator<AgentEvent>;
   cancel(runId: string): boolean;
+  resolveApproval(
+    runId: string,
+    approvalId: string,
+    decision: "approve" | "deny",
+  ): { ok: boolean; status: string };
   listTools(): ToolDefinition[];
   registerTool(tool: RegisteredTool): void;
   registerHttpTool(options: Parameters<typeof defineHttpTool>[0]): void;
@@ -75,9 +99,17 @@ export interface MiniAgent {
 
 export async function createAgent(options: CreateAgentOptions = {}): Promise<MiniAgent> {
   const logger = options.logger ?? consoleLogger;
+  const workspaceRoot = ensureWorkspaceRoot(options.workspaceRoot ?? defaultWorkspaceRoot());
   const tools = new ToolRegistry();
+
+  if (options.includeBuiltinTools) {
+    for (const tool of createBuiltinTools({ workspaceRoot })) {
+      tools.register(tool);
+    }
+  }
+
   for (const tool of options.tools ?? []) {
-    tools.register(tool);
+    tools.upsert(tool);
   }
 
   const defaultModel = options.model?.model ?? process.env.OPENAI_MODEL ?? "gpt-4o-mini";
@@ -95,9 +127,9 @@ export async function createAgent(options: CreateAgentOptions = {}): Promise<Min
       ? new SqliteSessionStore(options.sqlitePath ?? "./data/sessions.sqlite")
       : new InMemorySessionStore());
 
-  const memory =
-    options.memory?.store ??
-    new InMemoryMemoryStore();
+  const memory = options.memory?.store ?? new InMemoryMemoryStore();
+  const policy = new ToolPolicy(options.policy);
+  const approvals = new ApprovalBroker();
 
   const mcp = new McpManager(tools, logger);
   for (const server of options.mcp?.servers ?? []) {
@@ -113,7 +145,11 @@ export async function createAgent(options: CreateAgentOptions = {}): Promise<Min
     defaultModel,
     maxSteps: options.maxSteps,
     timeoutMs: options.timeoutMs,
+    toolTimeoutMs: options.toolTimeoutMs,
+    approvalTimeoutMs: options.approvalTimeoutMs,
     systemPrompt: options.systemPrompt,
+    policy,
+    approvals,
   };
   const loop = new AgentLoop(loopOptions);
 
@@ -124,6 +160,9 @@ export async function createAgent(options: CreateAgentOptions = {}): Promise<Min
     memory,
     mcp,
     llm,
+    approvals,
+    policy,
+    workspaceRoot,
     defaultModel,
     async createSession(input) {
       const session = await sessions.create(input ?? {});
@@ -154,6 +193,9 @@ export async function createAgent(options: CreateAgentOptions = {}): Promise<Min
     cancel(runId) {
       return loop.cancel(runId);
     },
+    resolveApproval(runId, approvalId, decision) {
+      return loop.resolveApproval(runId, approvalId, decision);
+    },
     listTools() {
       return tools.list();
     },
@@ -167,6 +209,7 @@ export async function createAgent(options: CreateAgentOptions = {}): Promise<Min
       return mcp.upsert(config);
     },
     async close() {
+      approvals.clearAll();
       await mcp.closeAll();
       if (sessions instanceof SqliteSessionStore) {
         sessions.close();

@@ -10,6 +10,7 @@ import {
   type GetSessionRequest,
   type ListToolsRequest,
   type RegisterHttpToolRequest,
+  type ResolveToolApprovalRequest,
   type RunAgentRequest,
   type UpsertMcpServerRequest,
   SessionSchema,
@@ -103,6 +104,21 @@ function toProtoEvent(event: RuntimeEvent): AgentEvent {
           },
         },
       });
+    case "tool.approval_required":
+      return create(AgentEventSchema, {
+        ...base,
+        payload: {
+          case: "toolApprovalRequired",
+          value: {
+            approvalId: event.approvalId,
+            toolCallId: event.toolCallId,
+            toolName: event.toolName,
+            argumentsJson: event.argumentsJson,
+            risk: event.risk,
+            reason: event.reason,
+          },
+        },
+      });
     case "memory.hit":
       return create(AgentEventSchema, {
         ...base,
@@ -192,6 +208,15 @@ export function registerAgentRoutes(
       return { cancelled: agent.cancel(req.runId) };
     },
 
+    async resolveToolApproval(req: ResolveToolApprovalRequest, ctx) {
+      guard(ctx);
+      const decision = req.decision === "deny" ? "deny" : req.decision === "approve" ? "approve" : null;
+      if (!decision) {
+        return { ok: false, status: "invalid" };
+      }
+      return agent.resolveApproval(req.runId, req.approvalId, decision);
+    },
+
     async listTools(_req: ListToolsRequest, ctx) {
       guard(ctx);
       return {
@@ -203,6 +228,7 @@ export function registerAgentRoutes(
             source: tool.source,
             sideEffect: tool.sideEffect ?? false,
             requiresApproval: tool.requiresApproval ?? false,
+            risk: tool.risk ?? "",
           }),
         ),
       };
@@ -235,6 +261,7 @@ export function registerAgentRoutes(
           source: tool.source,
           sideEffect: tool.sideEffect ?? false,
           requiresApproval: tool.requiresApproval ?? false,
+          risk: tool.risk ?? "network",
         }),
       };
     },

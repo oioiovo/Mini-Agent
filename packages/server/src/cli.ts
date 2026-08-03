@@ -41,6 +41,9 @@ async function main() {
   const model = process.env.OPENAI_MODEL ?? "gpt-4o-mini";
   const baseUrl = process.env.OPENAI_BASE_URL ?? "https://api.openai.com/v1";
   const hasApiKey = Boolean(process.env.OPENAI_API_KEY);
+  const autoApprove =
+    process.env.MINI_AGENT_AUTO_APPROVE === "true" ||
+    process.env.MINI_AGENT_AUTO_APPROVE === "1";
 
   const server = await createMiniAgentServer({ port });
   console.log(
@@ -49,6 +52,12 @@ async function main() {
   console.log("Health check: GET /healthz");
   if (envPath) console.log(`Loaded env: ${envPath}`);
   console.log(`LLM: model=${model} baseUrl=${baseUrl} apiKey=${hasApiKey ? "set" : "missing"}`);
+  console.log(
+    `Tools: workspace=${server.agent.workspaceRoot} autoApprove=${autoApprove} builtins=${server.agent
+      .listTools()
+      .map((t) => t.name)
+      .join(",")}`,
+  );
 
   const shutdown = async () => {
     await server.close();

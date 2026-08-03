@@ -10,7 +10,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file agent/v1/agent.proto.
  */
 export const file_agent_v1_agent: GenFile = /*@__PURE__*/
-  fileDesc("ChRhZ2VudC92MS9hZ2VudC5wcm90bxIIYWdlbnQudjEingEKFENyZWF0ZVNlc3Npb25SZXF1ZXN0Ej4KCG1ldGFkYXRhGAEgAygLMiwuYWdlbnQudjEuQ3JlYXRlU2Vzc2lvblJlcXVlc3QuTWV0YWRhdGFFbnRyeRIVCg1zeXN0ZW1fcHJvbXB0GAIgASgJGi8KDU1ldGFkYXRhRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ASI7ChVDcmVhdGVTZXNzaW9uUmVzcG9uc2USIgoHc2Vzc2lvbhgBIAEoCzIRLmFnZW50LnYxLlNlc3Npb24iJwoRR2V0U2Vzc2lvblJlcXVlc3QSEgoKc2Vzc2lvbl9pZBgBIAEoCSI4ChJHZXRTZXNzaW9uUmVzcG9uc2USIgoHc2Vzc2lvbhgBIAEoCzIRLmFnZW50LnYxLlNlc3Npb24i1QEKB1Nlc3Npb24SCgoCaWQYASABKAkSFQoNY3JlYXRlZF9hdF9tcxgCIAEoAxIVCg11cGRhdGVkX2F0X21zGAMgASgDEjEKCG1ldGFkYXRhGAQgAygLMh8uYWdlbnQudjEuU2Vzc2lvbi5NZXRhZGF0YUVudHJ5EhUKDXN5c3RlbV9wcm9tcHQYBSABKAkSFQoNbWVzc2FnZV9jb3VudBgGIAEoBRovCg1NZXRhZGF0YUVudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEibAoPUnVuQWdlbnRSZXF1ZXN0EhIKCnNlc3Npb25faWQYASABKAkSDwoHbWVzc2FnZRgCIAEoCRINCgVtb2RlbBgDIAEoCRIRCgltYXhfc3RlcHMYBCABKAUSEgoKdGltZW91dF9tcxgFIAEoBSIiChBDYW5jZWxSdW5SZXF1ZXN0Eg4KBnJ1bl9pZBgBIAEoCSImChFDYW5jZWxSdW5SZXNwb25zZRIRCgljYW5jZWxsZWQYASABKAgiEgoQTGlzdFRvb2xzUmVxdWVzdCI2ChFMaXN0VG9vbHNSZXNwb25zZRIhCgV0b29scxgBIAMoCzISLmFnZW50LnYxLlRvb2xJbmZvIogBCghUb29sSW5mbxIMCgRuYW1lGAEgASgJEhMKC2Rlc2NyaXB0aW9uGAIgASgJEhkKEWlucHV0X3NjaGVtYV9qc29uGAMgASgJEg4KBnNvdXJjZRgEIAEoCRITCgtzaWRlX2VmZmVjdBgFIAEoCBIZChFyZXF1aXJlc19hcHByb3ZhbBgGIAEoCCKFAgoXUmVnaXN0ZXJIdHRwVG9vbFJlcXVlc3QSDAoEbmFtZRgBIAEoCRITCgtkZXNjcmlwdGlvbhgCIAEoCRIZChFpbnB1dF9zY2hlbWFfanNvbhgDIAEoCRILCgN1cmwYBCABKAkSPwoHaGVhZGVycxgFIAMoCzIuLmFnZW50LnYxLlJlZ2lzdGVySHR0cFRvb2xSZXF1ZXN0LkhlYWRlcnNFbnRyeRITCgtzaWRlX2VmZmVjdBgGIAEoCBIZChFyZXF1aXJlc19hcHByb3ZhbBgHIAEoCBouCgxIZWFkZXJzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ASI8ChhSZWdpc3Rlckh0dHBUb29sUmVzcG9uc2USIAoEdG9vbBgBIAEoCzISLmFnZW50LnYxLlRvb2xJbmZvIr0BChZVcHNlcnRNY3BTZXJ2ZXJSZXF1ZXN0EgwKBG5hbWUYASABKAkSEQoJdHJhbnNwb3J0GAIgASgJEhAKCGVuZHBvaW50GAMgASgJEgwKBGFyZ3MYBCADKAkSNgoDZW52GAUgAygLMikuYWdlbnQudjEuVXBzZXJ0TWNwU2VydmVyUmVxdWVzdC5FbnZFbnRyeRoqCghFbnZFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBIjsKF1Vwc2VydE1jcFNlcnZlclJlc3BvbnNlEgwKBG5hbWUYASABKAkSEgoKdG9vbF9jb3VudBgCIAEoBSKnAwoKQWdlbnRFdmVudBIOCgZydW5faWQYASABKAkSEgoKc2Vzc2lvbl9pZBgCIAEoCRIUCgx0aW1lc3RhbXBfbXMYAyABKAMSMAoLcnVuX3N0YXJ0ZWQYCiABKAsyGS5hZ2VudC52MS5SdW5TdGFydGVkRXZlbnRIABIuCgp0ZXh0X2RlbHRhGAsgASgLMhguYWdlbnQudjEuVGV4dERlbHRhRXZlbnRIABIsCgl0b29sX2NhbGwYDCABKAsyFy5hZ2VudC52MS5Ub29sQ2FsbEV2ZW50SAASMAoLdG9vbF9yZXN1bHQYDSABKAsyGS5hZ2VudC52MS5Ub29sUmVzdWx0RXZlbnRIABIuCgptZW1vcnlfaGl0GA4gASgLMhguYWdlbnQudjEuTWVtb3J5SGl0RXZlbnRIABI0Cg1ydW5fY29tcGxldGVkGA8gASgLMhsuYWdlbnQudjEuUnVuQ29tcGxldGVkRXZlbnRIABIsCglydW5fZXJyb3IYECABKAsyFy5hZ2VudC52MS5SdW5FcnJvckV2ZW50SABCCQoHcGF5bG9hZCIgCg9SdW5TdGFydGVkRXZlbnQSDQoFbW9kZWwYASABKAkiHgoOVGV4dERlbHRhRXZlbnQSDAoEdGV4dBgBIAEoCSJQCg1Ub29sQ2FsbEV2ZW50EhQKDHRvb2xfY2FsbF9pZBgBIAEoCRIRCgl0b29sX25hbWUYAiABKAkSFgoOYXJndW1lbnRzX2pzb24YAyABKAkiYQoPVG9vbFJlc3VsdEV2ZW50EhQKDHRvb2xfY2FsbF9pZBgBIAEoCRIRCgl0b29sX25hbWUYAiABKAkSEwoLcmVzdWx0X2pzb24YAyABKAkSEAoIaXNfZXJyb3IYBCABKAgiQwoOTWVtb3J5SGl0RXZlbnQSEQoJbWVtb3J5X2lkGAEgASgJEg8KB2NvbnRlbnQYAiABKAkSDQoFc2NvcmUYAyABKAEiNgoRUnVuQ29tcGxldGVkRXZlbnQSEgoKZmluYWxfdGV4dBgBIAEoCRINCgVzdGVwcxgCIAEoBSIuCg1SdW5FcnJvckV2ZW50EgwKBGNvZGUYASABKAkSDwoHbWVzc2FnZRgCIAEoCTKnBAoMQWdlbnRTZXJ2aWNlElAKDUNyZWF0ZVNlc3Npb24SHi5hZ2VudC52MS5DcmVhdGVTZXNzaW9uUmVxdWVzdBofLmFnZW50LnYxLkNyZWF0ZVNlc3Npb25SZXNwb25zZRJHCgpHZXRTZXNzaW9uEhsuYWdlbnQudjEuR2V0U2Vzc2lvblJlcXVlc3QaHC5hZ2VudC52MS5HZXRTZXNzaW9uUmVzcG9uc2USPQoIUnVuQWdlbnQSGS5hZ2VudC52MS5SdW5BZ2VudFJlcXVlc3QaFC5hZ2VudC52MS5BZ2VudEV2ZW50MAESRAoJQ2FuY2VsUnVuEhouYWdlbnQudjEuQ2FuY2VsUnVuUmVxdWVzdBobLmFnZW50LnYxLkNhbmNlbFJ1blJlc3BvbnNlEkQKCUxpc3RUb29scxIaLmFnZW50LnYxLkxpc3RUb29sc1JlcXVlc3QaGy5hZ2VudC52MS5MaXN0VG9vbHNSZXNwb25zZRJZChBSZWdpc3Rlckh0dHBUb29sEiEuYWdlbnQudjEuUmVnaXN0ZXJIdHRwVG9vbFJlcXVlc3QaIi5hZ2VudC52MS5SZWdpc3Rlckh0dHBUb29sUmVzcG9uc2USVgoPVXBzZXJ0TWNwU2VydmVyEiAuYWdlbnQudjEuVXBzZXJ0TWNwU2VydmVyUmVxdWVzdBohLmFnZW50LnYxLlVwc2VydE1jcFNlcnZlclJlc3BvbnNlQgJQAWIGcHJvdG8z");
+  fileDesc("ChRhZ2VudC92MS9hZ2VudC5wcm90bxIIYWdlbnQudjEingEKFENyZWF0ZVNlc3Npb25SZXF1ZXN0Ej4KCG1ldGFkYXRhGAEgAygLMiwuYWdlbnQudjEuQ3JlYXRlU2Vzc2lvblJlcXVlc3QuTWV0YWRhdGFFbnRyeRIVCg1zeXN0ZW1fcHJvbXB0GAIgASgJGi8KDU1ldGFkYXRhRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ASI7ChVDcmVhdGVTZXNzaW9uUmVzcG9uc2USIgoHc2Vzc2lvbhgBIAEoCzIRLmFnZW50LnYxLlNlc3Npb24iJwoRR2V0U2Vzc2lvblJlcXVlc3QSEgoKc2Vzc2lvbl9pZBgBIAEoCSI4ChJHZXRTZXNzaW9uUmVzcG9uc2USIgoHc2Vzc2lvbhgBIAEoCzIRLmFnZW50LnYxLlNlc3Npb24i1QEKB1Nlc3Npb24SCgoCaWQYASABKAkSFQoNY3JlYXRlZF9hdF9tcxgCIAEoAxIVCg11cGRhdGVkX2F0X21zGAMgASgDEjEKCG1ldGFkYXRhGAQgAygLMh8uYWdlbnQudjEuU2Vzc2lvbi5NZXRhZGF0YUVudHJ5EhUKDXN5c3RlbV9wcm9tcHQYBSABKAkSFQoNbWVzc2FnZV9jb3VudBgGIAEoBRovCg1NZXRhZGF0YUVudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEibAoPUnVuQWdlbnRSZXF1ZXN0EhIKCnNlc3Npb25faWQYASABKAkSDwoHbWVzc2FnZRgCIAEoCRINCgVtb2RlbBgDIAEoCRIRCgltYXhfc3RlcHMYBCABKAUSEgoKdGltZW91dF9tcxgFIAEoBSIiChBDYW5jZWxSdW5SZXF1ZXN0Eg4KBnJ1bl9pZBgBIAEoCSImChFDYW5jZWxSdW5SZXNwb25zZRIRCgljYW5jZWxsZWQYASABKAgiYQoaUmVzb2x2ZVRvb2xBcHByb3ZhbFJlcXVlc3QSDgoGcnVuX2lkGAEgASgJEhMKC2FwcHJvdmFsX2lkGAIgASgJEhAKCGRlY2lzaW9uGAMgASgJEgwKBG5vdGUYBCABKAkiOQobUmVzb2x2ZVRvb2xBcHByb3ZhbFJlc3BvbnNlEgoKAm9rGAEgASgIEg4KBnN0YXR1cxgCIAEoCSISChBMaXN0VG9vbHNSZXF1ZXN0IjYKEUxpc3RUb29sc1Jlc3BvbnNlEiEKBXRvb2xzGAEgAygLMhIuYWdlbnQudjEuVG9vbEluZm8ilgEKCFRvb2xJbmZvEgwKBG5hbWUYASABKAkSEwoLZGVzY3JpcHRpb24YAiABKAkSGQoRaW5wdXRfc2NoZW1hX2pzb24YAyABKAkSDgoGc291cmNlGAQgASgJEhMKC3NpZGVfZWZmZWN0GAUgASgIEhkKEXJlcXVpcmVzX2FwcHJvdmFsGAYgASgIEgwKBHJpc2sYByABKAkihQIKF1JlZ2lzdGVySHR0cFRvb2xSZXF1ZXN0EgwKBG5hbWUYASABKAkSEwoLZGVzY3JpcHRpb24YAiABKAkSGQoRaW5wdXRfc2NoZW1hX2pzb24YAyABKAkSCwoDdXJsGAQgASgJEj8KB2hlYWRlcnMYBSADKAsyLi5hZ2VudC52MS5SZWdpc3Rlckh0dHBUb29sUmVxdWVzdC5IZWFkZXJzRW50cnkSEwoLc2lkZV9lZmZlY3QYBiABKAgSGQoRcmVxdWlyZXNfYXBwcm92YWwYByABKAgaLgoMSGVhZGVyc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEiPAoYUmVnaXN0ZXJIdHRwVG9vbFJlc3BvbnNlEiAKBHRvb2wYASABKAsyEi5hZ2VudC52MS5Ub29sSW5mbyK9AQoWVXBzZXJ0TWNwU2VydmVyUmVxdWVzdBIMCgRuYW1lGAEgASgJEhEKCXRyYW5zcG9ydBgCIAEoCRIQCghlbmRwb2ludBgDIAEoCRIMCgRhcmdzGAQgAygJEjYKA2VudhgFIAMoCzIpLmFnZW50LnYxLlVwc2VydE1jcFNlcnZlclJlcXVlc3QuRW52RW50cnkaKgoIRW52RW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ASI7ChdVcHNlcnRNY3BTZXJ2ZXJSZXNwb25zZRIMCgRuYW1lGAEgASgJEhIKCnRvb2xfY291bnQYAiABKAUi7gMKCkFnZW50RXZlbnQSDgoGcnVuX2lkGAEgASgJEhIKCnNlc3Npb25faWQYAiABKAkSFAoMdGltZXN0YW1wX21zGAMgASgDEjAKC3J1bl9zdGFydGVkGAogASgLMhkuYWdlbnQudjEuUnVuU3RhcnRlZEV2ZW50SAASLgoKdGV4dF9kZWx0YRgLIAEoCzIYLmFnZW50LnYxLlRleHREZWx0YUV2ZW50SAASLAoJdG9vbF9jYWxsGAwgASgLMhcuYWdlbnQudjEuVG9vbENhbGxFdmVudEgAEjAKC3Rvb2xfcmVzdWx0GA0gASgLMhkuYWdlbnQudjEuVG9vbFJlc3VsdEV2ZW50SAASLgoKbWVtb3J5X2hpdBgOIAEoCzIYLmFnZW50LnYxLk1lbW9yeUhpdEV2ZW50SAASNAoNcnVuX2NvbXBsZXRlZBgPIAEoCzIbLmFnZW50LnYxLlJ1bkNvbXBsZXRlZEV2ZW50SAASLAoJcnVuX2Vycm9yGBAgASgLMhcuYWdlbnQudjEuUnVuRXJyb3JFdmVudEgAEkUKFnRvb2xfYXBwcm92YWxfcmVxdWlyZWQYESABKAsyIy5hZ2VudC52MS5Ub29sQXBwcm92YWxSZXF1aXJlZEV2ZW50SABCCQoHcGF5bG9hZCIgCg9SdW5TdGFydGVkRXZlbnQSDQoFbW9kZWwYASABKAkiHgoOVGV4dERlbHRhRXZlbnQSDAoEdGV4dBgBIAEoCSJQCg1Ub29sQ2FsbEV2ZW50EhQKDHRvb2xfY2FsbF9pZBgBIAEoCRIRCgl0b29sX25hbWUYAiABKAkSFgoOYXJndW1lbnRzX2pzb24YAyABKAkiYQoPVG9vbFJlc3VsdEV2ZW50EhQKDHRvb2xfY2FsbF9pZBgBIAEoCRIRCgl0b29sX25hbWUYAiABKAkSEwoLcmVzdWx0X2pzb24YAyABKAkSEAoIaXNfZXJyb3IYBCABKAgijwEKGVRvb2xBcHByb3ZhbFJlcXVpcmVkRXZlbnQSEwoLYXBwcm92YWxfaWQYASABKAkSFAoMdG9vbF9jYWxsX2lkGAIgASgJEhEKCXRvb2xfbmFtZRgDIAEoCRIWCg5hcmd1bWVudHNfanNvbhgEIAEoCRIMCgRyaXNrGAUgASgJEg4KBnJlYXNvbhgGIAEoCSJDCg5NZW1vcnlIaXRFdmVudBIRCgltZW1vcnlfaWQYASABKAkSDwoHY29udGVudBgCIAEoCRINCgVzY29yZRgDIAEoASI2ChFSdW5Db21wbGV0ZWRFdmVudBISCgpmaW5hbF90ZXh0GAEgASgJEg0KBXN0ZXBzGAIgASgFIi4KDVJ1bkVycm9yRXZlbnQSDAoEY29kZRgBIAEoCRIPCgdtZXNzYWdlGAIgASgJMosFCgxBZ2VudFNlcnZpY2USUAoNQ3JlYXRlU2Vzc2lvbhIeLmFnZW50LnYxLkNyZWF0ZVNlc3Npb25SZXF1ZXN0Gh8uYWdlbnQudjEuQ3JlYXRlU2Vzc2lvblJlc3BvbnNlEkcKCkdldFNlc3Npb24SGy5hZ2VudC52MS5HZXRTZXNzaW9uUmVxdWVzdBocLmFnZW50LnYxLkdldFNlc3Npb25SZXNwb25zZRI9CghSdW5BZ2VudBIZLmFnZW50LnYxLlJ1bkFnZW50UmVxdWVzdBoULmFnZW50LnYxLkFnZW50RXZlbnQwARJECglDYW5jZWxSdW4SGi5hZ2VudC52MS5DYW5jZWxSdW5SZXF1ZXN0GhsuYWdlbnQudjEuQ2FuY2VsUnVuUmVzcG9uc2USYgoTUmVzb2x2ZVRvb2xBcHByb3ZhbBIkLmFnZW50LnYxLlJlc29sdmVUb29sQXBwcm92YWxSZXF1ZXN0GiUuYWdlbnQudjEuUmVzb2x2ZVRvb2xBcHByb3ZhbFJlc3BvbnNlEkQKCUxpc3RUb29scxIaLmFnZW50LnYxLkxpc3RUb29sc1JlcXVlc3QaGy5hZ2VudC52MS5MaXN0VG9vbHNSZXNwb25zZRJZChBSZWdpc3Rlckh0dHBUb29sEiEuYWdlbnQudjEuUmVnaXN0ZXJIdHRwVG9vbFJlcXVlc3QaIi5hZ2VudC52MS5SZWdpc3Rlckh0dHBUb29sUmVzcG9uc2USVgoPVXBzZXJ0TWNwU2VydmVyEiAuYWdlbnQudjEuVXBzZXJ0TWNwU2VydmVyUmVxdWVzdBohLmFnZW50LnYxLlVwc2VydE1jcFNlcnZlclJlc3BvbnNlQgJQAWIGcHJvdG8z");
 
 /**
  * @generated from message agent.v1.CreateSessionRequest
@@ -201,6 +201,64 @@ export const CancelRunResponseSchema: GenMessage<CancelRunResponse> = /*@__PURE_
   messageDesc(file_agent_v1_agent, 7);
 
 /**
+ * @generated from message agent.v1.ResolveToolApprovalRequest
+ */
+export type ResolveToolApprovalRequest = Message<"agent.v1.ResolveToolApprovalRequest"> & {
+  /**
+   * @generated from field: string run_id = 1;
+   */
+  runId: string;
+
+  /**
+   * @generated from field: string approval_id = 2;
+   */
+  approvalId: string;
+
+  /**
+   * approve | deny
+   *
+   * @generated from field: string decision = 3;
+   */
+  decision: string;
+
+  /**
+   * @generated from field: string note = 4;
+   */
+  note: string;
+};
+
+/**
+ * Describes the message agent.v1.ResolveToolApprovalRequest.
+ * Use `create(ResolveToolApprovalRequestSchema)` to create a new message.
+ */
+export const ResolveToolApprovalRequestSchema: GenMessage<ResolveToolApprovalRequest> = /*@__PURE__*/
+  messageDesc(file_agent_v1_agent, 8);
+
+/**
+ * @generated from message agent.v1.ResolveToolApprovalResponse
+ */
+export type ResolveToolApprovalResponse = Message<"agent.v1.ResolveToolApprovalResponse"> & {
+  /**
+   * @generated from field: bool ok = 1;
+   */
+  ok: boolean;
+
+  /**
+   * approved | denied | not_found | invalid
+   *
+   * @generated from field: string status = 2;
+   */
+  status: string;
+};
+
+/**
+ * Describes the message agent.v1.ResolveToolApprovalResponse.
+ * Use `create(ResolveToolApprovalResponseSchema)` to create a new message.
+ */
+export const ResolveToolApprovalResponseSchema: GenMessage<ResolveToolApprovalResponse> = /*@__PURE__*/
+  messageDesc(file_agent_v1_agent, 9);
+
+/**
  * @generated from message agent.v1.ListToolsRequest
  */
 export type ListToolsRequest = Message<"agent.v1.ListToolsRequest"> & {
@@ -211,7 +269,7 @@ export type ListToolsRequest = Message<"agent.v1.ListToolsRequest"> & {
  * Use `create(ListToolsRequestSchema)` to create a new message.
  */
 export const ListToolsRequestSchema: GenMessage<ListToolsRequest> = /*@__PURE__*/
-  messageDesc(file_agent_v1_agent, 8);
+  messageDesc(file_agent_v1_agent, 10);
 
 /**
  * @generated from message agent.v1.ListToolsResponse
@@ -228,7 +286,7 @@ export type ListToolsResponse = Message<"agent.v1.ListToolsResponse"> & {
  * Use `create(ListToolsResponseSchema)` to create a new message.
  */
 export const ListToolsResponseSchema: GenMessage<ListToolsResponse> = /*@__PURE__*/
-  messageDesc(file_agent_v1_agent, 9);
+  messageDesc(file_agent_v1_agent, 11);
 
 /**
  * @generated from message agent.v1.ToolInfo
@@ -267,6 +325,13 @@ export type ToolInfo = Message<"agent.v1.ToolInfo"> & {
    * @generated from field: bool requires_approval = 6;
    */
   requiresApproval: boolean;
+
+  /**
+   * read | write | network | exec
+   *
+   * @generated from field: string risk = 7;
+   */
+  risk: string;
 };
 
 /**
@@ -274,7 +339,7 @@ export type ToolInfo = Message<"agent.v1.ToolInfo"> & {
  * Use `create(ToolInfoSchema)` to create a new message.
  */
 export const ToolInfoSchema: GenMessage<ToolInfo> = /*@__PURE__*/
-  messageDesc(file_agent_v1_agent, 10);
+  messageDesc(file_agent_v1_agent, 12);
 
 /**
  * @generated from message agent.v1.RegisterHttpToolRequest
@@ -321,7 +386,7 @@ export type RegisterHttpToolRequest = Message<"agent.v1.RegisterHttpToolRequest"
  * Use `create(RegisterHttpToolRequestSchema)` to create a new message.
  */
 export const RegisterHttpToolRequestSchema: GenMessage<RegisterHttpToolRequest> = /*@__PURE__*/
-  messageDesc(file_agent_v1_agent, 11);
+  messageDesc(file_agent_v1_agent, 13);
 
 /**
  * @generated from message agent.v1.RegisterHttpToolResponse
@@ -338,7 +403,7 @@ export type RegisterHttpToolResponse = Message<"agent.v1.RegisterHttpToolRespons
  * Use `create(RegisterHttpToolResponseSchema)` to create a new message.
  */
 export const RegisterHttpToolResponseSchema: GenMessage<RegisterHttpToolResponse> = /*@__PURE__*/
-  messageDesc(file_agent_v1_agent, 12);
+  messageDesc(file_agent_v1_agent, 14);
 
 /**
  * @generated from message agent.v1.UpsertMcpServerRequest
@@ -379,7 +444,7 @@ export type UpsertMcpServerRequest = Message<"agent.v1.UpsertMcpServerRequest"> 
  * Use `create(UpsertMcpServerRequestSchema)` to create a new message.
  */
 export const UpsertMcpServerRequestSchema: GenMessage<UpsertMcpServerRequest> = /*@__PURE__*/
-  messageDesc(file_agent_v1_agent, 13);
+  messageDesc(file_agent_v1_agent, 15);
 
 /**
  * @generated from message agent.v1.UpsertMcpServerResponse
@@ -401,7 +466,7 @@ export type UpsertMcpServerResponse = Message<"agent.v1.UpsertMcpServerResponse"
  * Use `create(UpsertMcpServerResponseSchema)` to create a new message.
  */
 export const UpsertMcpServerResponseSchema: GenMessage<UpsertMcpServerResponse> = /*@__PURE__*/
-  messageDesc(file_agent_v1_agent, 14);
+  messageDesc(file_agent_v1_agent, 16);
 
 /**
  * @generated from message agent.v1.AgentEvent
@@ -467,6 +532,12 @@ export type AgentEvent = Message<"agent.v1.AgentEvent"> & {
      */
     value: RunErrorEvent;
     case: "runError";
+  } | {
+    /**
+     * @generated from field: agent.v1.ToolApprovalRequiredEvent tool_approval_required = 17;
+     */
+    value: ToolApprovalRequiredEvent;
+    case: "toolApprovalRequired";
   } | { case: undefined; value?: undefined };
 };
 
@@ -475,7 +546,7 @@ export type AgentEvent = Message<"agent.v1.AgentEvent"> & {
  * Use `create(AgentEventSchema)` to create a new message.
  */
 export const AgentEventSchema: GenMessage<AgentEvent> = /*@__PURE__*/
-  messageDesc(file_agent_v1_agent, 15);
+  messageDesc(file_agent_v1_agent, 17);
 
 /**
  * @generated from message agent.v1.RunStartedEvent
@@ -492,7 +563,7 @@ export type RunStartedEvent = Message<"agent.v1.RunStartedEvent"> & {
  * Use `create(RunStartedEventSchema)` to create a new message.
  */
 export const RunStartedEventSchema: GenMessage<RunStartedEvent> = /*@__PURE__*/
-  messageDesc(file_agent_v1_agent, 16);
+  messageDesc(file_agent_v1_agent, 18);
 
 /**
  * @generated from message agent.v1.TextDeltaEvent
@@ -509,7 +580,7 @@ export type TextDeltaEvent = Message<"agent.v1.TextDeltaEvent"> & {
  * Use `create(TextDeltaEventSchema)` to create a new message.
  */
 export const TextDeltaEventSchema: GenMessage<TextDeltaEvent> = /*@__PURE__*/
-  messageDesc(file_agent_v1_agent, 17);
+  messageDesc(file_agent_v1_agent, 19);
 
 /**
  * @generated from message agent.v1.ToolCallEvent
@@ -536,7 +607,7 @@ export type ToolCallEvent = Message<"agent.v1.ToolCallEvent"> & {
  * Use `create(ToolCallEventSchema)` to create a new message.
  */
 export const ToolCallEventSchema: GenMessage<ToolCallEvent> = /*@__PURE__*/
-  messageDesc(file_agent_v1_agent, 18);
+  messageDesc(file_agent_v1_agent, 20);
 
 /**
  * @generated from message agent.v1.ToolResultEvent
@@ -568,7 +639,51 @@ export type ToolResultEvent = Message<"agent.v1.ToolResultEvent"> & {
  * Use `create(ToolResultEventSchema)` to create a new message.
  */
 export const ToolResultEventSchema: GenMessage<ToolResultEvent> = /*@__PURE__*/
-  messageDesc(file_agent_v1_agent, 19);
+  messageDesc(file_agent_v1_agent, 21);
+
+/**
+ * @generated from message agent.v1.ToolApprovalRequiredEvent
+ */
+export type ToolApprovalRequiredEvent = Message<"agent.v1.ToolApprovalRequiredEvent"> & {
+  /**
+   * @generated from field: string approval_id = 1;
+   */
+  approvalId: string;
+
+  /**
+   * @generated from field: string tool_call_id = 2;
+   */
+  toolCallId: string;
+
+  /**
+   * @generated from field: string tool_name = 3;
+   */
+  toolName: string;
+
+  /**
+   * @generated from field: string arguments_json = 4;
+   */
+  argumentsJson: string;
+
+  /**
+   * read | write | network | exec
+   *
+   * @generated from field: string risk = 5;
+   */
+  risk: string;
+
+  /**
+   * @generated from field: string reason = 6;
+   */
+  reason: string;
+};
+
+/**
+ * Describes the message agent.v1.ToolApprovalRequiredEvent.
+ * Use `create(ToolApprovalRequiredEventSchema)` to create a new message.
+ */
+export const ToolApprovalRequiredEventSchema: GenMessage<ToolApprovalRequiredEvent> = /*@__PURE__*/
+  messageDesc(file_agent_v1_agent, 22);
 
 /**
  * @generated from message agent.v1.MemoryHitEvent
@@ -595,7 +710,7 @@ export type MemoryHitEvent = Message<"agent.v1.MemoryHitEvent"> & {
  * Use `create(MemoryHitEventSchema)` to create a new message.
  */
 export const MemoryHitEventSchema: GenMessage<MemoryHitEvent> = /*@__PURE__*/
-  messageDesc(file_agent_v1_agent, 20);
+  messageDesc(file_agent_v1_agent, 23);
 
 /**
  * @generated from message agent.v1.RunCompletedEvent
@@ -617,7 +732,7 @@ export type RunCompletedEvent = Message<"agent.v1.RunCompletedEvent"> & {
  * Use `create(RunCompletedEventSchema)` to create a new message.
  */
 export const RunCompletedEventSchema: GenMessage<RunCompletedEvent> = /*@__PURE__*/
-  messageDesc(file_agent_v1_agent, 21);
+  messageDesc(file_agent_v1_agent, 24);
 
 /**
  * @generated from message agent.v1.RunErrorEvent
@@ -639,7 +754,7 @@ export type RunErrorEvent = Message<"agent.v1.RunErrorEvent"> & {
  * Use `create(RunErrorEventSchema)` to create a new message.
  */
 export const RunErrorEventSchema: GenMessage<RunErrorEvent> = /*@__PURE__*/
-  messageDesc(file_agent_v1_agent, 22);
+  messageDesc(file_agent_v1_agent, 25);
 
 /**
  * AgentService is the public surface for thin multi-language clients.
@@ -678,6 +793,14 @@ export const AgentService: GenService<{
     methodKind: "unary";
     input: typeof CancelRunRequestSchema;
     output: typeof CancelRunResponseSchema;
+  },
+  /**
+   * @generated from rpc agent.v1.AgentService.ResolveToolApproval
+   */
+  resolveToolApproval: {
+    methodKind: "unary";
+    input: typeof ResolveToolApprovalRequestSchema;
+    output: typeof ResolveToolApprovalResponseSchema;
   },
   /**
    * @generated from rpc agent.v1.AgentService.ListTools

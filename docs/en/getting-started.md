@@ -24,6 +24,9 @@ Configure `.env`:
 OPENAI_API_KEY=sk-...
 MINI_AGENT_API_KEY=dev-key
 MINI_AGENT_PORT=8787
+MINI_AGENT_WORKSPACE=./workspace
+# Local debug only — keep false in production
+MINI_AGENT_AUTO_APPROVE=false
 ```
 
 ## Start the runtime server
@@ -35,6 +38,9 @@ pnpm dev
 ```
 
 Health check: `GET http://127.0.0.1:8787/healthz`
+
+Builtin tools: `now`, `calculator`, `list_dir`, `read_file`, `write_file`, `http_request`.  
+`write_file` / `http_request` require approval unless `MINI_AGENT_AUTO_APPROVE=true`.
 
 ## TypeScript client
 
@@ -55,6 +61,13 @@ for await (const event of client.run({
   sessionId: session.id,
   message: "hello",
 })) {
+  if (event.payload.case === "toolApprovalRequired") {
+    await client.resolveToolApproval({
+      runId: event.runId,
+      approvalId: event.payload.value.approvalId,
+      decision: "approve", // or "deny"
+    });
+  }
   console.log(event.payload.case, event.payload.value);
 }
 ```

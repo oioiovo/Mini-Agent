@@ -18,10 +18,14 @@ async function main() {
     process.exit(1);
   }
 
+  const autoApproveApprovals =
+    process.env.MINI_AGENT_EXAMPLE_AUTO_APPROVE !== "false" &&
+    process.env.MINI_AGENT_EXAMPLE_AUTO_APPROVE !== "0";
+
   const client = new MiniAgentClient({ baseUrl, apiKey });
 
   const session = await client.createSession({
-    systemPrompt: "You are a concise assistant. Prefer tools for arithmetic.",
+    systemPrompt: "You are a concise assistant. Prefer tools for arithmetic and file ops.",
   });
   console.log("session:", session.id);
 
@@ -44,6 +48,24 @@ async function main() {
           event.payload.value.argumentsJson,
         );
         break;
+      case "toolApprovalRequired": {
+        const value = event.payload.value;
+        console.log(
+          `approval? ${value.toolName} risk=${value.risk} reason=${value.reason}`,
+          value.argumentsJson,
+        );
+        if (autoApproveApprovals) {
+          const result = await client.resolveToolApproval({
+            runId: event.runId,
+            approvalId: value.approvalId,
+            decision: "approve",
+          });
+          console.log("approval →", result.status);
+        } else {
+          console.log("Set MINI_AGENT_EXAMPLE_AUTO_APPROVE=true or call ResolveToolApproval");
+        }
+        break;
+      }
       case "toolResult":
         console.log(
           `tool ← ${event.payload.value.toolName}`,

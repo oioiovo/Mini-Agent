@@ -146,6 +146,24 @@ class MiniAgentClient:
         data = self._request("CancelRun", {"runId": run_id})
         return bool(data.get("cancelled"))
 
+    def resolve_tool_approval(
+        self,
+        *,
+        run_id: str,
+        approval_id: str,
+        decision: str,
+        note: str = "",
+    ) -> dict[str, Any]:
+        return self._request(
+            "ResolveToolApproval",
+            {
+                "runId": run_id,
+                "approvalId": approval_id,
+                "decision": decision,
+                "note": note,
+            },
+        )
+
     def register_http_tool(
         self,
         *,
@@ -266,6 +284,7 @@ def _parse_event(message: dict[str, Any]) -> AgentEvent:
         "textDelta",
         "toolCall",
         "toolResult",
+        "toolApprovalRequired",
         "memoryHit",
         "runCompleted",
         "runError",
@@ -273,6 +292,7 @@ def _parse_event(message: dict[str, Any]) -> AgentEvent:
         "text_delta",
         "tool_call",
         "tool_result",
+        "tool_approval_required",
         "memory_hit",
         "run_completed",
         "run_error",

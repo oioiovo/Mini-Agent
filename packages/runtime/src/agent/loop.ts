@@ -7,6 +7,8 @@ import type {
   MemoryStore,
 } from "../types.js";
 import type { SessionStore } from "../session/memory-store.js";
+import type { ApprovalBroker } from "../tools/approval.js";
+import type { ToolPolicy } from "../tools/policy.js";
 import type { ToolRegistry } from "../tools/registry.js";
 import { consoleLogger, nowMs, toErrorMessage } from "../utils.js";
 
@@ -19,7 +21,11 @@ export interface AgentLoopOptions {
   defaultModel: string;
   maxSteps?: number;
   timeoutMs?: number;
+  toolTimeoutMs?: number;
+  approvalTimeoutMs?: number;
   systemPrompt?: string;
+  policy: ToolPolicy;
+  approvals: ApprovalBroker;
 }
 
 export interface RunInput {
@@ -31,17 +37,40 @@ export interface RunInput {
   runId?: string;
 }
 
+function combineSignals(signals: AbortSignal[]): AbortSignal {
+  if (typeof AbortSignal.any === "function") {
+    return AbortSignal.any(signals);
+  }
+  const controller = new AbortController();
+  for (const signal of signals) {
+    if (signal.aborted) {
+      controller.abort(signal.reason);
+      return controller.signal;
+    }
+    signal.addEventListener(
+      "abort",
+      () => controller.abort(signal.reason),
+      { once: true },
+    );
+  }
+  return controller.signal;
+}
+
 export class AgentLoop {
   private readonly activeRuns = new Map<string, AbortController>();
   private readonly logger: Logger;
   private readonly defaultMaxSteps: number;
   private readonly defaultTimeoutMs: number;
+  private readonly toolTimeoutMs: number;
+  private readonly approvalTimeoutMs: number;
   private readonly defaultSystemPrompt: string;
 
   constructor(private readonly options: AgentLoopOptions) {
     this.logger = options.logger ?? consoleLogger;
     this.defaultMaxSteps = options.maxSteps ?? 8;
     this.defaultTimeoutMs = options.timeoutMs ?? 120_000;
+    this.toolTimeoutMs = options.toolTimeoutMs ?? 30_000;
+    this.approvalTimeoutMs = options.approvalTimeoutMs ?? 120_000;
     this.defaultSystemPrompt =
       options.systemPrompt ??
       "You are a helpful agent. Use tools when they improve accuracy.";
@@ -50,8 +79,17 @@ export class AgentLoop {
   cancel(runId: string): boolean {
     const controller = this.activeRuns.get(runId);
     if (!controller) return false;
+    this.options.approvals.cancelRun(runId);
     controller.abort();
     return true;
+  }
+
+  resolveApproval(
+    runId: string,
+    approvalId: string,
+    decision: "approve" | "deny",
+  ): { ok: boolean; status: string } {
+    return this.options.approvals.resolve(runId, approvalId, decision);
   }
 
   async *run(input: RunInput): AsyncGenerator<AgentEvent> {
@@ -165,6 +203,102 @@ export class AgentLoop {
 
         const toolMessages: ChatMessage[] = [];
         for (const call of toolCalls) {
+          const tool = this.options.tools.get(call.name);
+          const policy = this.options.policy.evaluate({
+            name: call.name,
+            risk: tool?.risk,
+            requiresApproval: tool?.requiresApproval,
+            sideEffect: tool?.sideEffect,
+            source: tool?.source,
+            argumentsJson: call.arguments,
+          });
+
+          let allowed = policy.decision === "allow";
+
+          if (policy.decision === "deny") {
+            const resultJson = JSON.stringify({ error: policy.reason });
+            yield {
+              type: "tool.completed",
+              ...emitBase,
+              toolCallId: call.id,
+              toolName: call.name,
+              resultJson,
+              isError: true,
+              timestampMs: nowMs(),
+            };
+            this.logger.info("tool denied", {
+              runId,
+              sessionId,
+              tool_name: call.name,
+              risk: policy.risk,
+              decision: "deny",
+            });
+            toolMessages.push({
+              role: "tool",
+              content: resultJson,
+              toolCallId: call.id,
+              name: call.name,
+            });
+            continue;
+          }
+
+          if (policy.decision === "require_approval") {
+            const approvalId = nanoid();
+            const decisionPromise = this.options.approvals.begin(
+              runId,
+              approvalId,
+              this.approvalTimeoutMs,
+            );
+            yield {
+              type: "tool.approval_required",
+              ...emitBase,
+              approvalId,
+              toolCallId: call.id,
+              toolName: call.name,
+              argumentsJson: call.arguments,
+              risk: policy.risk,
+              reason: policy.reason,
+              timestampMs: nowMs(),
+            };
+
+            const decision = await decisionPromise;
+
+            if (decision !== "approve") {
+              const resultJson = JSON.stringify({
+                error:
+                  decision === "timeout"
+                    ? "Tool approval timed out"
+                    : "Tool approval denied",
+              });
+              yield {
+                type: "tool.completed",
+                ...emitBase,
+                toolCallId: call.id,
+                toolName: call.name,
+                resultJson,
+                isError: true,
+                timestampMs: nowMs(),
+              };
+              this.logger.info("tool approval rejected", {
+                runId,
+                sessionId,
+                tool_name: call.name,
+                risk: policy.risk,
+                decision,
+              });
+              toolMessages.push({
+                role: "tool",
+                content: resultJson,
+                toolCallId: call.id,
+                name: call.name,
+              });
+              continue;
+            }
+            allowed = true;
+          }
+
+          if (!allowed) continue;
+
           yield {
             type: "tool.started",
             ...emitBase,
@@ -174,12 +308,15 @@ export class AgentLoop {
             timestampMs: nowMs(),
           };
 
+          const startedAt = nowMs();
+          const toolTimeout = AbortSignal.timeout(this.toolTimeoutMs);
           const executed = await this.options.tools.execute(call.name, call.arguments, {
             sessionId,
             runId,
-            abortSignal: controller.signal,
+            abortSignal: combineSignals([controller.signal, toolTimeout]),
             logger: this.logger,
           });
+          const durationMs = nowMs() - startedAt;
 
           yield {
             type: "tool.completed",
@@ -190,6 +327,16 @@ export class AgentLoop {
             isError: executed.isError,
             timestampMs: nowMs(),
           };
+
+          this.logger.info("tool executed", {
+            runId,
+            sessionId,
+            tool_name: call.name,
+            risk: policy.risk,
+            decision: "allow",
+            duration_ms: durationMs,
+            is_error: executed.isError,
+          });
 
           toolMessages.push({
             role: "tool",
@@ -221,6 +368,7 @@ export class AgentLoop {
       };
     } finally {
       clearTimeout(timeout);
+      this.options.approvals.cancelRun(runId);
       this.activeRuns.delete(runId);
     }
   }

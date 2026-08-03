@@ -28,6 +28,8 @@ export interface ToolDefinition {
   source: "local" | "http" | "mcp";
   sideEffect?: boolean;
   requiresApproval?: boolean;
+  /** Security risk classification used by ToolPolicy. */
+  risk?: "read" | "write" | "network" | "exec";
 }
 
 export interface ToolContext {
@@ -64,6 +66,18 @@ export type AgentEvent =
       toolName: string;
       resultJson: string;
       isError: boolean;
+      timestampMs: number;
+    }
+  | {
+      type: "tool.approval_required";
+      runId: string;
+      sessionId: string;
+      approvalId: string;
+      toolCallId: string;
+      toolName: string;
+      argumentsJson: string;
+      risk: "read" | "write" | "network" | "exec";
+      reason: string;
       timestampMs: number;
     }
   | {

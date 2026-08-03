@@ -4,7 +4,6 @@ import { dirname, join } from "node:path";
 import { connectNodeAdapter } from "@connectrpc/connect-node";
 import {
   createAgent,
-  defineLocalTool,
   type CreateAgentOptions,
   type MiniAgent,
 } from "@mini-agent/runtime";
@@ -39,38 +38,6 @@ export async function createMiniAgentServer(
   const port = options.port ?? Number(process.env.MINI_AGENT_PORT ?? 8787);
   const apiKey = options.apiKey ?? process.env.MINI_AGENT_API_KEY;
 
-  const builtinTools =
-    options.enableBuiltinTools === false
-      ? []
-      : [
-          defineLocalTool({
-            name: "now",
-            description: "Return the current UTC timestamp in ISO format",
-            execute: () => ({ now: new Date().toISOString() }),
-          }),
-          defineLocalTool({
-            name: "calculator",
-            description:
-              "Evaluate a simple arithmetic expression with + - * / and parentheses",
-            inputSchema: {
-              type: "object",
-              properties: {
-                expression: { type: "string" },
-              },
-              required: ["expression"],
-            },
-            execute: ({ expression }) => {
-              const expr = String(expression ?? "");
-              if (!/^[\d\s+\-*/().]+$/.test(expr)) {
-                throw new Error("Only basic arithmetic is allowed");
-              }
-              // eslint-disable-next-line no-new-func
-              const value = Function(`"use strict"; return (${expr});`)() as number;
-              return { expression: expr, value };
-            },
-          }),
-        ];
-
   let agent = options.agent;
   if (!agent) {
     const sqlitePath = resolveSqlitePath(options.agentOptions);
@@ -79,7 +46,8 @@ export async function createMiniAgentServer(
       sessionBackend: "sqlite",
       ...options.agentOptions,
       sqlitePath,
-      tools: [...builtinTools, ...(options.agentOptions?.tools ?? [])],
+      includeBuiltinTools: options.enableBuiltinTools !== false,
+      tools: options.agentOptions?.tools ?? [],
     });
   }
 
