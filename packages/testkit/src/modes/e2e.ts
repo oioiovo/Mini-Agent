@@ -1,5 +1,5 @@
 import { createAgent } from "@mini-agent/runtime";
-import { MiniAgentClient } from "@mini-agent/sdk";
+import { MiniAgentClient } from "@mini-agent/client";
 import { createMiniAgentServer } from "@mini-agent/server";
 import { createFakeLlmFromSteps } from "../fake-llm.js";
 import { createTrace, ingestClientEvent } from "../collect.js";

@@ -1,4 +1,4 @@
-import { MiniAgentClient } from "@mini-agent/sdk";
+import { MiniAgentClient } from "@mini-agent/client";
 import { createTrace, ingestClientEvent } from "../collect.js";
 import { interpolate } from "../schema.js";
 import type { CaseContext, RunTrace } from "../types.js";

@@ -8,7 +8,7 @@ import {
   defineLocalTool,
   FakeLlmClient,
 } from "@mini-agent/runtime";
-import { MiniAgentClient } from "@mini-agent/sdk";
+import { MiniAgentClient } from "@mini-agent/client";
 import { createMiniAgentServer } from "./server.js";
 
 describe("server e2e", () => {

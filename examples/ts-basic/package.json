@@ -6,7 +6,7 @@
     "start": "tsx src/main.ts"
   },
   "dependencies": {
-    "@mini-agent/sdk": "workspace:*",
+    "@mini-agent/client": "workspace:*",
     "dotenv": "^17.4.2"
   },
   "devDependencies": {

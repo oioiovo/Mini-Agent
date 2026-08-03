@@ -6,7 +6,6 @@
 
 - Node.js 20+
 - pnpm 9+
-- Python 3.10+ (only required when using the Python SDK)
 - OpenAI-compatible API Key
 
 ## Install
@@ -55,7 +54,7 @@ pnpm --filter @mini-agent/example-ts-basic start -- "What is 21 * 2?"
 ```
 
 ```ts
-import { MiniAgentClient } from "@mini-agent/sdk";
+import { MiniAgentClient } from "@mini-agent/client";
 
 const client = new MiniAgentClient({
   baseUrl: "http://127.0.0.1:8787",
@@ -90,14 +89,6 @@ pnpm test:live -- --only calculator
 ```
 
 Reports: `artifacts/test-runs/<timestamp>/report.md` and `report.json`.
-
-## Python client
-
-```bash
-pip install -r examples/py-basic/requirements.txt
-set MINI_AGENT_API_KEY=dev-key
-python examples/py-basic/main.py "What is 2+2?"
-```
 
 ## Register an HTTP tool
 

@@ -8,12 +8,11 @@ Mini-Agent 采用 **单核心 Runtime + 薄客户端**：
 
 1. TypeScript `packages/runtime` 实现 agent loop、工具、MCP、memory、LLM providers。
 2. `packages/server` 用 Connect over HTTP 暴露同一能力；默认同时兼容 gRPC。
-3. TS / Python SDK 只做传输与类型封装，不复制 loop 逻辑。
+3. `@mini-agent/client` 只做传输与类型封装，不复制 loop 逻辑。
 
 ```mermaid
 flowchart LR
-  TsSdk[sdk-ts] --> Connect[Connect HTTP]
-  PySdk[sdk-py] --> Connect
+  Client[packages/client] --> Connect[Connect HTTP]
   Connect --> Server[server]
   Server --> Runtime[runtime]
   Runtime --> LLM[LLM Providers]
@@ -55,8 +54,8 @@ flowchart LR
 
 ## 嵌入 vs 网络
 
-- 同进程 TS：直接 `createAgent()` / `createMiniAgentServer({ agent })`
-- 跨语言 / 跨进程：HTTP Connect 客户端
+- 同进程：直接 `createAgent()` / `createMiniAgentServer({ agent })`
+- 跨进程：HTTP Connect 客户端（`@mini-agent/client`）
 
 ## 鉴权与限流
 

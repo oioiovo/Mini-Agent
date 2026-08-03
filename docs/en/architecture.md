@@ -8,12 +8,11 @@ Mini-Agent uses a **single-core Runtime + thin clients** design:
 
 1. TypeScript `packages/runtime` implements the agent loop, tools, MCP, memory, and LLM providers.
 2. `packages/server` exposes the same capabilities over Connect HTTP, with gRPC enabled by default.
-3. The TS / Python SDKs only handle transport and typing — they do not reimplement the loop.
+3. `@mini-agent/client` only handles transport and typing — it does not reimplement the loop.
 
 ```mermaid
 flowchart LR
-  TsSdk[sdk-ts] --> Connect[Connect HTTP]
-  PySdk[sdk-py] --> Connect
+  Client[packages/client] --> Connect[Connect HTTP]
   Connect --> Server[server]
   Server --> Runtime[runtime]
   Runtime --> LLM[LLM Providers]
@@ -55,8 +54,8 @@ Generate: `pnpm generate` → `packages/shared/src/gen`
 
 ## Embedding vs network
 
-- Same-process TypeScript: call `createAgent()` / `createMiniAgentServer({ agent })` directly
-- Cross-language / cross-process: HTTP Connect clients
+- Same-process: call `createAgent()` / `createMiniAgentServer({ agent })` directly
+- Cross-process: HTTP Connect client (`@mini-agent/client`)
 
 ## Auth & limits
 

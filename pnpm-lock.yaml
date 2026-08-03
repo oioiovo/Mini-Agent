@@ -20,9 +20,9 @@ importers:
 
   examples/ts-basic:
     dependencies:
-      '@mini-agent/sdk':
+      '@mini-agent/client':
         specifier: workspace:*
-        version: link:../../packages/sdk-ts
+        version: link:../../packages/client
       dotenv:
         specifier: ^17.4.2
         version: 17.4.2
@@ -33,6 +33,28 @@ importers:
       tsx:
         specifier: ^4.19.3
         version: 4.23.5
+      typescript:
+        specifier: ^5.8.2
+        version: 5.9.3
+
+  packages/client:
+    dependencies:
+      '@bufbuild/protobuf':
+        specifier: ^2.2.5
+        version: 2.13.0
+      '@connectrpc/connect':
+        specifier: ^2.0.2
+        version: 2.1.2(@bufbuild/protobuf@2.13.0)
+      '@connectrpc/connect-node':
+        specifier: ^2.0.2
+        version: 2.1.2(@bufbuild/protobuf@2.13.0)(@connectrpc/connect@2.1.2(@bufbuild/protobuf@2.13.0))
+      '@mini-agent/shared':
+        specifier: workspace:*
+        version: link:../shared
+    devDependencies:
+      '@types/node':
+        specifier: ^22.13.10
+        version: 22.20.1
       typescript:
         specifier: ^5.8.2
         version: 5.9.3
@@ -59,28 +81,6 @@ importers:
         specifier: ^5.8.2
         version: 5.9.3
 
-  packages/sdk-ts:
-    dependencies:
-      '@bufbuild/protobuf':
-        specifier: ^2.2.5
-        version: 2.13.0
-      '@connectrpc/connect':
-        specifier: ^2.0.2
-        version: 2.1.2(@bufbuild/protobuf@2.13.0)
-      '@connectrpc/connect-node':
-        specifier: ^2.0.2
-        version: 2.1.2(@bufbuild/protobuf@2.13.0)(@connectrpc/connect@2.1.2(@bufbuild/protobuf@2.13.0))
-      '@mini-agent/shared':
-        specifier: workspace:*
-        version: link:../shared
-    devDependencies:
-      '@types/node':
-        specifier: ^22.13.10
-        version: 22.20.1
-      typescript:
-        specifier: ^5.8.2
-        version: 5.9.3
-
   packages/server:
     dependencies:
       '@bufbuild/protobuf':
@@ -102,9 +102,9 @@ importers:
         specifier: ^17.4.2
         version: 17.4.2
     devDependencies:
-      '@mini-agent/sdk':
+      '@mini-agent/client':
         specifier: workspace:^
-        version: link:../sdk-ts
+        version: link:../client
       '@types/node':
         specifier: ^22.13.10
         version: 22.20.1
@@ -130,12 +130,12 @@ importers:
 
   packages/testkit:
     dependencies:
+      '@mini-agent/client':
+        specifier: workspace:*
+        version: link:../client
       '@mini-agent/runtime':
         specifier: workspace:*
         version: link:../runtime
-      '@mini-agent/sdk':
-        specifier: workspace:*
-        version: link:../sdk-ts
       '@mini-agent/server':
         specifier: workspace:*
         version: link:../server

@@ -2,7 +2,7 @@
 
 > Languages: [中文](../README.md) | [English](README.en.md)
 
-A TypeScript single-core Agent Runtime that exposes a streaming API over Connect (HTTP, with gRPC enabled by default). Thin clients are available for TypeScript, Python, and other languages.
+A TypeScript single-core Agent Runtime that exposes a streaming API over Connect (HTTP, with gRPC enabled by default). Use the thin `@mini-agent/client`, or embed `@mini-agent/runtime` in-process.
 
 ## Features
 
@@ -11,7 +11,7 @@ A TypeScript single-core Agent Runtime that exposes a streaming API over Connect
 - Session (in-memory or SQLite) + Memory (retrieval / summarization)
 - OpenAI-compatible LLM Provider
 - Connect HTTP API + API Key auth + basic rate limiting
-- Thin clients: `@mini-agent/sdk` (TypeScript) and `mini-agent` (Python)
+- `@mini-agent/client` (Connect thin client)
 
 ## Quick start
 
@@ -29,13 +29,6 @@ In another terminal:
 pnpm --filter @mini-agent/example-ts-basic start
 ```
 
-Python:
-
-```bash
-pip install -r examples/py-basic/requirements.txt
-python examples/py-basic/main.py
-```
-
 ## Repository layout
 
 ```text
@@ -43,10 +36,9 @@ proto/agent/v1          # single contract
 packages/runtime        # Agent loop / tools / mcp / memory / providers
 packages/server         # Connect HTTP server (gRPC on by default)
 packages/shared         # generated protobuf / Connect types
-packages/sdk-ts         # TypeScript thin client
-packages/sdk-py         # Python thin client
+packages/testkit        # unified tests (YAML + hooks)
+packages/client         # Connect thin client (@mini-agent/client)
 examples/ts-basic
-examples/py-basic
 docs/
   zh/                   # Chinese docs
   en/                   # English docs

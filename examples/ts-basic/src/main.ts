@@ -1,7 +1,7 @@
 import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 import { config as loadEnv } from "dotenv";
-import { MiniAgentClient } from "@mini-agent/sdk";
+import { MiniAgentClient } from "@mini-agent/client";
 
 for (const path of [resolve(process.cwd(), ".env"), resolve(process.cwd(), "../../.env")]) {
   if (existsSync(path)) {

@@ -1,5 +1,5 @@
 import type { AgentEvent } from "@mini-agent/runtime";
-import type { ClientAgentEvent } from "@mini-agent/sdk";
+import type { ClientAgentEvent } from "@mini-agent/client";
 import type { CaseContext, LogFn, RunTrace } from "./types.js";
 
 function emptyTrace(): RunTrace {

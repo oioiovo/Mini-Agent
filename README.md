@@ -2,7 +2,7 @@
 
 > 语言：[中文](README.md) | [English](docs/README.en.md)
 
-TypeScript 单核心 Agent Runtime，通过 Connect（HTTP，默认同时兼容 gRPC）对外提供流式 API；TS / Python 等语言使用薄客户端接入。
+TypeScript 单核心 Agent Runtime，通过 Connect（HTTP，默认同时兼容 gRPC）对外提供流式 API；可用 `@mini-agent/client` 薄客户端接入，或同进程直接嵌入 `@mini-agent/runtime`。
 
 ## 功能
 
@@ -11,7 +11,7 @@ TypeScript 单核心 Agent Runtime，通过 Connect（HTTP，默认同时兼容 
 - Session（内存或 SQLite）+ Memory（检索 / 摘要）
 - OpenAI-compatible LLM Provider
 - Connect HTTP API + API Key 鉴权 + 基础限流
-- `@mini-agent/sdk`（TypeScript）与 `mini-agent`（Python）薄客户端
+- `@mini-agent/client`（Connect 薄客户端）
 
 ## 快速开始
 
@@ -29,13 +29,6 @@ pnpm --filter @mini-agent/server start
 pnpm --filter @mini-agent/example-ts-basic start
 ```
 
-Python：
-
-```bash
-pip install -r examples/py-basic/requirements.txt
-python examples/py-basic/main.py
-```
-
 ## 仓库结构
 
 ```text
@@ -44,10 +37,8 @@ packages/runtime        # Agent loop / tools / mcp / memory / providers
 packages/server         # Connect HTTP 服务（gRPC 默认开启）
 packages/testkit        # 统一测试（YAML + hooks，unit/e2e/live）
 packages/shared         # 生成的 protobuf / Connect 类型
-packages/sdk-ts         # TypeScript 薄客户端
-packages/sdk-py         # Python 薄客户端
+packages/client         # Connect 薄客户端（@mini-agent/client）
 examples/ts-basic
-examples/py-basic
 docs/
   zh/                   # 中文文档
   en/                   # English docs
