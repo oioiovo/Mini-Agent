@@ -1,7 +1,29 @@
 #!/usr/bin/env node
+import { existsSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { config as loadEnv } from "dotenv";
 import { createMiniAgentServer } from "./server.js";
 
+function loadDotEnv(): string | undefined {
+  const candidates = [
+    resolve(process.cwd(), ".env"),
+    resolve(process.cwd(), "../../.env"),
+    resolve(dirname(fileURLToPath(import.meta.url)), "../../../.env"),
+  ];
+  for (const path of candidates) {
+    if (existsSync(path)) {
+      loadEnv({ path });
+      return path;
+    }
+  }
+  loadEnv();
+  return undefined;
+}
+
 async function main() {
+  const envPath = loadDotEnv();
+
   const [, , command = "serve", ...rest] = process.argv;
   if (command !== "serve") {
     console.error(`Unknown command: ${command}`);
@@ -16,9 +38,17 @@ async function main() {
     }
   }
 
+  const model = process.env.OPENAI_MODEL ?? "gpt-4o-mini";
+  const baseUrl = process.env.OPENAI_BASE_URL ?? "https://api.openai.com/v1";
+  const hasApiKey = Boolean(process.env.OPENAI_API_KEY);
+
   const server = await createMiniAgentServer({ port });
-  console.log(`Mini-Agent listening on http://${server.host === "0.0.0.0" ? "127.0.0.1" : server.host}:${server.port}`);
+  console.log(
+    `Mini-Agent listening on http://${server.host === "0.0.0.0" ? "127.0.0.1" : server.host}:${server.port}`,
+  );
   console.log("Health check: GET /healthz");
+  if (envPath) console.log(`Loaded env: ${envPath}`);
+  console.log(`LLM: model=${model} baseUrl=${baseUrl} apiKey=${hasApiKey ? "set" : "missing"}`);
 
   const shutdown = async () => {
     await server.close();

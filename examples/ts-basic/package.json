@@ -6,11 +6,12 @@
     "start": "tsx src/main.ts"
   },
   "dependencies": {
-    "@mini-agent/sdk": "workspace:*"
+    "@mini-agent/sdk": "workspace:*",
+    "dotenv": "^17.4.2"
   },
   "devDependencies": {
+    "@types/node": "^22.13.10",
     "tsx": "^4.19.3",
-    "typescript": "^5.8.2",
-    "@types/node": "^22.13.10"
+    "typescript": "^5.8.2"
   }
 }

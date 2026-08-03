@@ -1,8 +1,23 @@
+import { existsSync } from "node:fs";
+import { resolve } from "node:path";
+import { config as loadEnv } from "dotenv";
 import { MiniAgentClient } from "@mini-agent/sdk";
+
+for (const path of [resolve(process.cwd(), ".env"), resolve(process.cwd(), "../../.env")]) {
+  if (existsSync(path)) {
+    loadEnv({ path });
+    break;
+  }
+}
 
 async function main() {
   const baseUrl = process.env.MINI_AGENT_URL ?? "http://127.0.0.1:8787";
   const apiKey = process.env.MINI_AGENT_API_KEY;
+  if (!apiKey) {
+    console.error("MINI_AGENT_API_KEY is required (set it in .env or the environment).");
+    process.exit(1);
+  }
+
   const client = new MiniAgentClient({ baseUrl, apiKey });
 
   const session = await client.createSession({
@@ -10,7 +25,9 @@ async function main() {
   });
   console.log("session:", session.id);
 
-  const message = process.argv.slice(2).join(" ") || "What is (12 + 30) * 2? Also tell me the current time.";
+  const message =
+    process.argv.slice(2).join(" ") ||
+    "What is (12 + 30) * 2? Also tell me the current time.";
   console.log("user:", message);
 
   for await (const event of client.run({ sessionId: session.id, message })) {
@@ -34,7 +51,11 @@ async function main() {
         );
         break;
       case "memoryHit":
-        console.log("memory:", event.payload.value.score, event.payload.value.content.slice(0, 80));
+        console.log(
+          "memory:",
+          event.payload.value.score,
+          event.payload.value.content.slice(0, 80),
+        );
         break;
       case "runCompleted":
         console.log("done:", event.payload.value.finalText);

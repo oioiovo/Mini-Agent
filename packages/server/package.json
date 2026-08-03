@@ -29,7 +29,8 @@
     "@connectrpc/connect": "^2.0.2",
     "@connectrpc/connect-node": "^2.0.2",
     "@mini-agent/runtime": "workspace:*",
-    "@mini-agent/shared": "workspace:*"
+    "@mini-agent/shared": "workspace:*",
+    "dotenv": "^17.4.2"
   },
   "devDependencies": {
     "@mini-agent/sdk": "workspace:^",
