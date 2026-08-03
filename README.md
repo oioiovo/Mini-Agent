@@ -7,7 +7,7 @@ TypeScript 单核心 Agent Runtime，通过 Connect（HTTP，默认同时兼容 
 ## 功能
 
 - Agent loop（多步工具调用、取消、超时、最大步数）
-- Local / HTTP / MCP 工具
+- Local / HTTP / MCP 工具（含 `todo_write` / `todo_read` 会话任务列表）
 - Session（内存或 SQLite）+ Memory（检索 / 摘要）
 - OpenAI-compatible LLM Provider
 - Connect HTTP API + API Key 鉴权 + 基础限流

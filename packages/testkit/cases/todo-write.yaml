@@ -1,0 +1,29 @@
+id: todo-write
+description: todo_write merges tasks and todo_read returns them
+modes: [unit, e2e]
+tags: [tools, builtins, todo]
+system_prompt: Use todo_write and todo_read for task tracking.
+prompt: Create a two-item todo list then read it back.
+builtins: true
+fake_llm:
+  - tool_calls:
+      - name: todo_write
+        arguments:
+          merge: false
+          todos:
+            - id: setup
+              content: Scaffold files
+              status: completed
+            - id: implement
+              content: Implement feature
+              status: in_progress
+  - tool_calls:
+      - name: todo_read
+        arguments: {}
+  - content: "Tracked 2 todos; implement is in progress."
+expect:
+  tools_called: [todo_write, todo_read]
+  events_include: [toolCall, runCompleted]
+  final_text_matches: ["2|todo|implement"]
+hooks:
+  after: ../hooks/assert-todo-no-error.ts

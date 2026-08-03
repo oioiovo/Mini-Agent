@@ -3,6 +3,12 @@ import { isIP } from "node:net";
 import type { ToolRisk } from "./policy.js";
 import { defineLocalTool, type RegisteredTool } from "./registry.js";
 import {
+  applyTodoWrite,
+  loadTodos,
+  saveTodos,
+  type TodoItem,
+} from "./todo-store.js";
+import {
   ensureWorkspaceRoot,
   parentDir,
   resolveSafePath,
@@ -77,6 +83,61 @@ export function createBuiltinTools(options: BuiltinToolsOptions): RegisteredTool
           const value = Function(`"use strict"; return (${expr});`)() as number;
           return { expression: expr, value };
         },
+      }),
+      "read",
+    ),
+    withRisk(
+      defineLocalTool({
+        name: "todo_write",
+        description:
+          "Create or update the session task list. Use merge=true to upsert by id; merge=false replaces the full list.",
+        risk: "read",
+        inputSchema: {
+          type: "object",
+          properties: {
+            merge: {
+              type: "boolean",
+              description: "If true (default), upsert by id; if false, replace all todos",
+            },
+            todos: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  id: { type: "string" },
+                  content: { type: "string" },
+                  status: {
+                    type: "string",
+                    enum: ["pending", "in_progress", "completed", "cancelled"],
+                  },
+                },
+                required: ["id", "content", "status"],
+              },
+            },
+          },
+          required: ["todos"],
+        },
+        execute: ({ merge, todos }, ctx) => {
+          const existing = loadTodos(workspaceRoot, ctx.sessionId);
+          const shouldMerge = merge !== false && merge !== "false";
+          const result = applyTodoWrite(existing, {
+            merge: shouldMerge,
+            todos: todos as TodoItem[],
+          });
+          saveTodos(workspaceRoot, ctx.sessionId, result.todos);
+          return result;
+        },
+      }),
+      "read",
+    ),
+    withRisk(
+      defineLocalTool({
+        name: "todo_read",
+        description: "Read the current session task list written by todo_write",
+        risk: "read",
+        execute: (_args, ctx) => ({
+          todos: loadTodos(workspaceRoot, ctx.sessionId),
+        }),
       }),
       "read",
     ),

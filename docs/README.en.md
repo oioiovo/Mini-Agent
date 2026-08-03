@@ -7,7 +7,7 @@ A TypeScript single-core Agent Runtime that exposes a streaming API over Connect
 ## Features
 
 - Agent loop (multi-step tool calls, cancellation, timeouts, max steps)
-- Local / HTTP / MCP tools
+- Local / HTTP / MCP tools (including `todo_write` / `todo_read` session task lists)
 - Session (in-memory or SQLite) + Memory (retrieval / summarization)
 - OpenAI-compatible LLM Provider
 - Connect HTTP API + API Key auth + basic rate limiting

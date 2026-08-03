@@ -39,8 +39,9 @@ pnpm dev
 
 Health check: `GET http://127.0.0.1:8787/healthz`
 
-Builtin tools: `now`, `calculator`, `list_dir`, `read_file`, `write_file`, `http_request`.  
-`write_file` / `http_request` require approval unless `MINI_AGENT_AUTO_APPROVE=true`.
+Builtin tools: `now`, `calculator`, `todo_write`, `todo_read`, `list_dir`, `read_file`, `write_file`, `http_request`.  
+`write_file` / `http_request` require approval unless `MINI_AGENT_AUTO_APPROVE=true`.  
+`todo_write` / `todo_read` persist a per-session task list under workspace `.mini-agent/todos/<sessionId>.json` (no approval).
 
 Tool execution:
 - Tools may push `toolResultDelta` via `emitDelta` (client observability; the model still receives the final full `toolResult`)

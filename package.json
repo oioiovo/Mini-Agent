@@ -9,7 +9,7 @@
     "dev": "pnpm --filter @mini-agent/server dev",
     "generate": "buf generate",
     "lint": "pnpm -r --if-present run lint",
-    "test": "pnpm build && pnpm --filter @mini-agent/runtime exec node --import tsx --test src/tools/policy.test.ts && pnpm --filter @mini-agent/server exec node --import tsx --test src/paths.test.ts src/cli.smoke.test.ts && pnpm --filter @mini-agent/testkit run test",
+    "test": "pnpm build && pnpm --filter @mini-agent/runtime exec node --import tsx --test src/tools/policy.test.ts src/tools/todo-store.test.ts src/tools/todo-builtins.test.ts && pnpm --filter @mini-agent/server exec node --import tsx --test src/paths.test.ts src/cli.smoke.test.ts && pnpm --filter @mini-agent/testkit run test",
     "test:unit": "pnpm --filter @mini-agent/testkit run test:unit",
     "test:e2e": "pnpm --filter @mini-agent/testkit run test:e2e",
     "test:live": "pnpm --filter @mini-agent/testkit run test:live",

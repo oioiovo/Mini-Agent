@@ -39,6 +39,20 @@ export { createBuiltinTools } from "./tools/builtins.js";
 export type { BuiltinToolsOptions } from "./tools/builtins.js";
 
 export {
+  applyTodoWrite,
+  loadTodos,
+  saveTodos,
+  todoFilePath,
+  sanitizeSessionId,
+} from "./tools/todo-store.js";
+export type {
+  TodoItem,
+  TodoStatus,
+  TodoWriteInput,
+  TodoWriteResult,
+} from "./tools/todo-store.js";
+
+export {
   resolveSafePath,
   ensureWorkspaceRoot,
   defaultWorkspaceRoot,
