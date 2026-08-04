@@ -59,6 +59,7 @@ export interface CreateAgentOptions {
   timeoutMs?: number;
   toolTimeoutMs?: number;
   approvalTimeoutMs?: number;
+  /** Overrides the identity section of the assembled system prompt (not a full replace). */
   systemPrompt?: string;
 }
 
@@ -198,6 +199,7 @@ export async function createAgent(options: CreateAgentOptions = {}): Promise<Min
     logger,
     defaultModel,
     policy,
+    workspaceRoot,
     options: options.subagent,
   });
   tools.upsert(subagentRunner.createTool());

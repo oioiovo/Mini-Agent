@@ -94,6 +94,25 @@ export { FileMemoryStore } from "./memory/file-store.js";
 export type { DurableMemoryOptions, PreparedMemoryContext } from "./memory/file-store.js";
 export { createMemoryTools } from "./memory/memory-tools.js";
 
+export {
+  buildPromptContext,
+  assembleSystemPrompt,
+  SystemPromptCache,
+} from "./prompt/assemble.js";
+export type {
+  PromptContext,
+  PromptSectionName,
+  AssembleResult,
+  SystemPromptCacheStats,
+} from "./prompt/assemble.js";
+export {
+  DEFAULT_IDENTITY,
+  DEFAULT_SUBAGENT_IDENTITY,
+  formatToolsSection,
+  formatWorkspaceSection,
+  formatMemorySection,
+} from "./prompt/sections.js";
+
 export { McpManager } from "./mcp/manager.js";
 export type { McpServerConfig } from "./mcp/manager.js";
 

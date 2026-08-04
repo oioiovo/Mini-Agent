@@ -71,7 +71,7 @@ Aligned with [s09 Memory](https://learn.shareai.run/zh/s09/) / CC memdir: compac
 
 ### Durable File Memory behavior
 
-- **Index injection**: each `run` appends `MEMORY.md` to the effective system prompt for that run only (does not mutate `session.systemPrompt`)
+- **Index injection**: each `run` feeds `MEMORY.md` through the system-prompt assembler as an on-demand memory section (does not mutate `session.systemPrompt`)
 - **Relevant bodies**: LLM side-query selects up to 5 files (keyword fallback on name+description), prefixed onto the user turn; emits `memory.hit`
 - **Auto extract**: when a run ends with no tool_calls, an LLM extract writes new files; failures are logged only
 - **Consolidate**: when file count ≥ threshold (default 10), LLM dedupes/merges (teaching-scale gate; no CC four-layer Dream)
@@ -79,6 +79,21 @@ Aligned with [s09 Memory](https://learn.shareai.run/zh/s09/) / CC memdir: compac
 - **Escape hatch**: `memory.store` injects a custom `MemoryStore` (skips file memory); bag-of-words `InMemoryMemoryStore` remains for tests
 
 Non-goals: embeddings, team memory / multi-host locks, forked agents.
+
+## System Prompt
+
+Aligned with [s10 System Prompt](https://learn.shareai.run/zh/s10/): assembled at runtime from real state, not one hardcoded blob.
+
+| Section | Strategy | Content |
+|---------|----------|---------|
+| identity | always | Default identity; non-empty `createAgent.systemPrompt` / `session.systemPrompt` overrides this section only |
+| tools | always | Registered tool names (full schemas still via API `tools[]`) |
+| workspace | always | `workspaceRoot` |
+| memory | on demand | Appended when `MEMORY.md` index is non-empty |
+
+Within a run, `SystemPromptCache` reuses the assembled string when context is unchanged (string-join cache only — not API prompt cache). Relevant memory bodies still inject as a per-turn user prefix, not into system.
+
+Simplifications vs CC: no Skills / multi-style section packs / `SYSTEM_PROMPT_DYNAMIC_BOUNDARY`.
 
 ## Context Compact
 

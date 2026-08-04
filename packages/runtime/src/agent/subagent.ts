@@ -7,6 +7,7 @@ import { ApprovalBroker } from "../tools/approval.js";
 import { ToolPolicy } from "../tools/policy.js";
 import { ToolRegistry, defineLocalTool, type RegisteredTool } from "../tools/registry.js";
 import { nowMs, toErrorMessage } from "../utils.js";
+import { DEFAULT_SUBAGENT_IDENTITY } from "../prompt/sections.js";
 import { AgentLoop } from "./loop.js";
 
 export const DEFAULT_SUBAGENT_TOOLS = [
@@ -43,6 +44,7 @@ export interface SubagentRunnerDeps {
   logger: Logger;
   defaultModel: string;
   policy: ToolPolicy;
+  workspaceRoot?: string;
   options?: SubagentOptions;
 }
 
@@ -136,9 +138,8 @@ export class SubagentRunner {
       timeoutMs: this.timeoutMs,
       policy: childPolicy,
       approvals: childApprovals,
-      systemPrompt:
-        input.systemPrompt ??
-        "You are a focused subagent. Complete the assigned task concisely using available tools.",
+      workspaceRoot: this.deps.workspaceRoot,
+      systemPrompt: input.systemPrompt ?? DEFAULT_SUBAGENT_IDENTITY,
     });
 
     const childSession = await this.deps.sessions.create({

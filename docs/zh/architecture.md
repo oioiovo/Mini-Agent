@@ -71,7 +71,7 @@ flowchart LR
 
 ### Durable File Memory 行为
 
-- **索引注入**：每次 `run` 将 `MEMORY.md` 拼进本轮有效 system（不写回 `session.systemPrompt`）
+- **索引注入**：每次 `run` 将 `MEMORY.md` 经 System Prompt 组装器按需拼进 memory section（不写回 `session.systemPrompt`）
 - **相关正文**：LLM side-query 最多选 5 个文件（失败则关键词匹配 name+description），作为本轮 user 前缀；发 `memory.hit`
 - **自动提取**：run 以无 tool_calls 正常结束时 LLM 提取新记忆写盘；失败只打日志
 - **整理**：记忆文件数 ≥ 阈值（默认 10）时 LLM 去重合并（教学版门控，无 CC 四层 Dream）
@@ -79,6 +79,21 @@ flowchart LR
 - **逃生舱**：`memory.store` 可注入自定义 `MemoryStore`（跳过文件记忆）；旧词袋 `InMemoryMemoryStore` 仍保留供测试
 
 简化点：无 embedding、无 Team memory / 多机锁、无 forked agent。
+
+## System Prompt
+
+对齐 [s10 System Prompt](https://learn.shareai.run/zh/s10/)：运行时按真实状态组装，不写死一整段。
+
+| Section | 策略 | 内容 |
+|---------|------|------|
+| identity | 始终 | 默认身份文案；`createAgent.systemPrompt` / `session.systemPrompt` 非空时只覆盖本段 |
+| tools | 始终 | 当前注册工具名列表（完整 schema 仍走 API `tools[]`） |
+| workspace | 始终 | `workspaceRoot` |
+| memory | 按需 | `MEMORY.md` 索引非空时追加 |
+
+同一次 run 内 context 未变时，`SystemPromptCache` 复用已组装字符串（仅避免重复拼接，不是 API prompt cache）。相关记忆正文仍作为本轮 user 前缀注入，不进 system。
+
+相对 CC 的简化：无 Skills / 多 section 风格包 / `SYSTEM_PROMPT_DYNAMIC_BOUNDARY`。
 
 ## Context Compact
 

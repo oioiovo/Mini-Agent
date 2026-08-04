@@ -2,7 +2,6 @@ import type { ChatMessage, LlmClient, MemoryHit, MemoryStore } from "../types.js
 import { extractMemories } from "./extract.js";
 import {
   ensureMemoryRoot,
-  formatMemoryIndexBlock,
   listMemoryFiles,
   readMemoryFile,
   readMemoryIndex,
@@ -27,7 +26,8 @@ export interface DurableMemoryOptions {
 }
 
 export interface PreparedMemoryContext {
-  indexBlock: string;
+  /** Raw MEMORY.md contents (assembler formats the memory section). */
+  memoryIndex: string;
   userPrefix: string;
   hits: MemoryHit[];
 }
@@ -112,10 +112,9 @@ export class FileMemoryStore implements MemoryStore {
     abortSignal?: AbortSignal;
   }): Promise<PreparedMemoryContext> {
     if (!this.enabled) {
-      return { indexBlock: "", userPrefix: "", hits: [] };
+      return { memoryIndex: "", userPrefix: "", hits: [] };
     }
-    const index = readMemoryIndex(this.root);
-    const indexBlock = formatMemoryIndexBlock(index);
+    const memoryIndex = readMemoryIndex(this.root);
     const selected = await selectRelevantMemories({
       root: this.root,
       query: input.query,
@@ -133,7 +132,7 @@ export class FileMemoryStore implements MemoryStore {
       score: 1,
       metadata: { type: file.type, name: file.name },
     }));
-    return { indexBlock, userPrefix, hits };
+    return { memoryIndex, userPrefix, hits };
   }
 
   async extractAfterRun(input: {

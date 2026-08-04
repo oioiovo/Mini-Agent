@@ -251,6 +251,7 @@ export function clipMemoryBody(
 export function formatMemoryIndexBlock(indexMarkdown: string): string {
   const trimmed = indexMarkdown.trim();
   if (!trimmed) return "";
+  // Leading newlines kept for callers that append onto an existing system string.
   return (
     `\n\n# Durable memories\n` +
     `The following is an index of durable memories that survive context compaction and sessions.\n` +

@@ -23,6 +23,11 @@ import type { ToolPolicy, ToolPolicyResult } from "../tools/policy.js";
 import type { ToolRegistry } from "../tools/registry.js";
 import { consoleLogger, nowMs, toErrorMessage } from "../utils.js";
 import { FileMemoryStore } from "../memory/file-store.js";
+import {
+  buildPromptContext,
+  SystemPromptCache,
+} from "../prompt/assemble.js";
+import { DEFAULT_IDENTITY } from "../prompt/sections.js";
 
 export interface AgentLoopOptions {
   llm: LlmClient;
@@ -36,6 +41,7 @@ export interface AgentLoopOptions {
   timeoutMs?: number;
   toolTimeoutMs?: number;
   approvalTimeoutMs?: number;
+  /** Overrides the identity section of the assembled system prompt. */
   systemPrompt?: string;
   policy: ToolPolicy;
   approvals: ApprovalBroker;
@@ -84,9 +90,10 @@ export class AgentLoop {
   private readonly defaultTimeoutMs: number;
   private readonly toolTimeoutMs: number;
   private readonly approvalTimeoutMs: number;
-  private readonly defaultSystemPrompt: string;
+  private readonly defaultIdentity: string;
   private readonly workspaceRoot: string;
   private readonly compactOptions: CompactOptions;
+  private readonly promptCache = new SystemPromptCache();
 
   constructor(private readonly options: AgentLoopOptions) {
     this.logger = options.logger ?? consoleLogger;
@@ -94,9 +101,7 @@ export class AgentLoop {
     this.defaultTimeoutMs = options.timeoutMs ?? 120_000;
     this.toolTimeoutMs = options.toolTimeoutMs ?? 30_000;
     this.approvalTimeoutMs = options.approvalTimeoutMs ?? 120_000;
-    this.defaultSystemPrompt =
-      options.systemPrompt ??
-      "You are a helpful agent. Use tools when they improve accuracy.";
+    this.defaultIdentity = options.systemPrompt?.trim() || DEFAULT_IDENTITY;
     this.workspaceRoot = options.workspaceRoot ?? process.cwd();
     this.compactOptions = options.compact ?? {};
   }
@@ -151,7 +156,7 @@ export class AgentLoop {
         timestampMs: nowMs(),
       };
 
-      let memoryIndexBlock = "";
+      let memoryIndex = "";
       let memoryUserPrefix = "";
       const durable = this.options.durableMemory;
 
@@ -164,7 +169,7 @@ export class AgentLoop {
             model,
             abortSignal: controller.signal,
           });
-          memoryIndexBlock = prepared.indexBlock;
+          memoryIndex = prepared.memoryIndex;
           memoryUserPrefix = prepared.userPrefix;
           for (const hit of prepared.hits) {
             yield {
@@ -261,8 +266,17 @@ export class AgentLoop {
         }
 
         if (!latest) throw new Error(`Session not found: ${sessionId}`);
-        const systemPrompt =
-          (latest.systemPrompt || this.defaultSystemPrompt) + memoryIndexBlock;
+        const identity =
+          latest.systemPrompt?.trim() || this.defaultIdentity;
+        const toolDefs = this.options.tools.list();
+        const systemPrompt = this.promptCache.get(
+          buildPromptContext({
+            identity,
+            toolNames: toolDefs.map((t) => t.name),
+            workspaceRoot: this.workspaceRoot,
+            memoryIndex,
+          }),
+        ).prompt;
         const messages: ChatMessage[] = [
           { role: "system", content: systemPrompt },
           ...latest.messages.map((m, index) => {
@@ -277,7 +291,6 @@ export class AgentLoop {
           }),
         ];
 
-        const toolDefs = this.options.tools.list();
         let response;
         let reactiveRetries = 0;
         for (;;) {
