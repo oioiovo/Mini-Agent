@@ -45,6 +45,7 @@ flowchart LR
 - `RegisterHttpTool`
 - `UpsertMcpServer`
 - `UpsertCronJob` / `GetCronJob` / `ListCronJobs` / `DeleteCronJob` / `SetCronJobEnabled`
+- `CompactSession`
 
 生成：`pnpm generate` → `packages/shared/src/gen`
 
@@ -64,7 +65,19 @@ flowchart LR
 |------|------|----------|
 | Working / Session | 多轮消息 | 服务端默认 SQLite（`node:sqlite`，`MINI_AGENT_DATA_DIR`）；亦可内存 |
 | Long-term | 跨会话检索 | 内存词袋 token overlap 打分（非 embedding / 向量库） |
-| Summary | 超长历史压缩 | 截断 + system summary |
+| Context Compact | 上下文压缩 | 四层管线（budget → snip → micro → LLM）；见下节 |
+
+## Context Compact
+
+对齐 [s08](https://learn.shareai.run/zh/s08/)「便宜先跑、贵的后跑」：
+
+1. **L3 tool_result_budget**：过大 tool 结果落盘到 `workspace/.mini-agent/tool-results/`
+2. **L1 snip_compact**：消息数超限时裁中间（保护 tool_use / tool_result 成对）
+3. **L2 micro_compact**：旧 tool 结果占位，保留最近 N 条完整内容
+4. **L4 compact_history**：估算 token 超阈值时 LLM 摘要；transcript 写入 `.mini-agent/transcripts/`
+5. **reactive**：API 报 context 过长时再压一次（保留短尾）
+
+触发方式：run 内自动、`CompactSession` RPC、内置工具 `compact`。
 
 ## 嵌入 vs 网络
 

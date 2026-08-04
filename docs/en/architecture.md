@@ -45,6 +45,7 @@ Single contract: `proto/agent/v1/agent.proto`
 - `RegisterHttpTool`
 - `UpsertMcpServer`
 - `UpsertCronJob` / `GetCronJob` / `ListCronJobs` / `DeleteCronJob` / `SetCronJobEnabled`
+- `CompactSession`
 
 Generate: `pnpm generate` → `packages/shared/src/gen`
 
@@ -64,7 +65,19 @@ In-process scheduler on the server: fires cron expressions by calling `agent.run
 |-------|----------------|---------|
 | Working / Session | Multi-turn messages | Server default SQLite (`node:sqlite`, `MINI_AGENT_DATA_DIR`); in-memory also available |
 | Long-term | Cross-session retrieval | In-memory bag-of-words token overlap (not embeddings / a vector DB) |
-| Summary | Compress long history | Truncation + system summary |
+| Context Compact | Context compression | Four-layer pipeline (budget → snip → micro → LLM); see below |
+
+## Context Compact
+
+Aligned with [s08](https://learn.shareai.run/zh/s08/) ("cheap first, expensive later"):
+
+1. **L3 tool_result_budget**: persist oversized tool results under `workspace/.mini-agent/tool-results/`
+2. **L1 snip_compact**: snip middle messages when over the message cap (keeps tool_use / tool_result pairs intact)
+3. **L2 micro_compact**: placeholder older tool results; keep the most recent N intact
+4. **L4 compact_history**: LLM summary when estimated tokens exceed the threshold; transcripts under `.mini-agent/transcripts/`
+5. **reactive**: one more compact if the API reports context overflow (keeps a short tail)
+
+Triggers: automatic in-run, `CompactSession` RPC, and the builtin `compact` tool.
 
 ## Embedding vs network
 

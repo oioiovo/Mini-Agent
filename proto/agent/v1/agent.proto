@@ -19,6 +19,7 @@ service AgentService {
   rpc ListCronJobs(ListCronJobsRequest) returns (ListCronJobsResponse);
   rpc DeleteCronJob(DeleteCronJobRequest) returns (DeleteCronJobResponse);
   rpc SetCronJobEnabled(SetCronJobEnabledRequest) returns (SetCronJobEnabledResponse);
+  rpc CompactSession(CompactSessionRequest) returns (CompactSessionResponse);
 }
 
 message CreateSessionRequest {
@@ -142,6 +143,7 @@ message AgentEvent {
     SubagentStartedEvent subagent_started = 19;
     SubagentProgressEvent subagent_progress = 20;
     SubagentCompletedEvent subagent_completed = 21;
+    ContextCompactedEvent context_compacted = 22;
   }
 }
 
@@ -304,4 +306,28 @@ message SetCronJobEnabledRequest {
 
 message SetCronJobEnabledResponse {
   CronJob job = 1;
+}
+
+message ContextCompactedEvent {
+  // snip | micro | budget | llm | reactive | manual
+  string layer = 1;
+  int32 tokens_before = 2;
+  int32 tokens_after = 3;
+  int32 messages_before = 4;
+  int32 messages_after = 5;
+}
+
+message CompactSessionRequest {
+  string session_id = 1;
+  // When true, always run LLM summarization after cheap layers.
+  bool force_llm = 2;
+}
+
+message CompactSessionResponse {
+  int32 tokens_before = 1;
+  int32 tokens_after = 2;
+  int32 messages_before = 3;
+  int32 messages_after = 4;
+  repeated string layers = 5;
+  string transcript_path = 6;
 }

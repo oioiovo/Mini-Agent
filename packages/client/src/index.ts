@@ -16,6 +16,7 @@ import {
   ListCronJobsRequestSchema,
   DeleteCronJobRequestSchema,
   SetCronJobEnabledRequestSchema,
+  CompactSessionRequestSchema,
   type AgentEvent,
   type CronJob,
   type Session,
@@ -229,5 +230,32 @@ export class MiniAgentClient {
     );
     if (!res.job) throw new Error("SetCronJobEnabled returned empty job");
     return res.job;
+  }
+
+  async compactSession(input: {
+    sessionId: string;
+    forceLlm?: boolean;
+  }): Promise<{
+    tokensBefore: number;
+    tokensAfter: number;
+    messagesBefore: number;
+    messagesAfter: number;
+    layers: string[];
+    transcriptPath: string;
+  }> {
+    const res = await this.client.compactSession(
+      create(CompactSessionRequestSchema, {
+        sessionId: input.sessionId,
+        forceLlm: input.forceLlm ?? true,
+      }),
+    );
+    return {
+      tokensBefore: res.tokensBefore,
+      tokensAfter: res.tokensAfter,
+      messagesBefore: res.messagesBefore,
+      messagesAfter: res.messagesAfter,
+      layers: res.layers,
+      transcriptPath: res.transcriptPath,
+    };
   }
 }

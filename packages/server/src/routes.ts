@@ -12,6 +12,7 @@ import {
   CronJobSchema,
   type AgentEvent,
   type CancelRunRequest,
+  type CompactSessionRequest,
   type CreateSessionRequest,
   type DeleteCronJobRequest,
   type GetCronJobRequest,
@@ -251,6 +252,20 @@ function toProtoEvent(event: RuntimeEvent): AgentEvent {
           },
         },
       });
+    case "context.compacted":
+      return create(AgentEventSchema, {
+        ...base,
+        payload: {
+          case: "contextCompacted",
+          value: {
+            layer: event.layer,
+            tokensBefore: event.tokensBefore,
+            tokensAfter: event.tokensAfter,
+            messagesBefore: event.messagesBefore,
+            messagesAfter: event.messagesAfter,
+          },
+        },
+      });
   }
 }
 
@@ -443,6 +458,30 @@ export function registerAgentRoutes(
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
         throw new ConnectError(message, Code.NotFound);
+      }
+    },
+
+    async compactSession(req: CompactSessionRequest, ctx) {
+      guard(ctx);
+      try {
+        const result = await agent.compactSession({
+          sessionId: req.sessionId,
+          forceLlm: req.forceLlm,
+        });
+        return {
+          tokensBefore: result.tokensBefore,
+          tokensAfter: result.tokensAfter,
+          messagesBefore: result.messagesBefore,
+          messagesAfter: result.messagesAfter,
+          layers: result.layers,
+          transcriptPath: result.transcriptPath ?? "",
+        };
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        if (message.includes("not found")) {
+          throw new ConnectError(message, Code.NotFound);
+        }
+        throw new ConnectError(message, Code.Internal);
       }
     },
   });

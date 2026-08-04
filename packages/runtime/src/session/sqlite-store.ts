@@ -88,6 +88,17 @@ export class SqliteSessionStore implements SessionStore {
     return session;
   }
 
+  async replaceMessages(sessionId: string, messages: ChatMessage[]): Promise<SessionRecord> {
+    const session = await this.get(sessionId);
+    if (!session) throw new Error(`Session not found: ${sessionId}`);
+    session.messages = [...messages];
+    session.updatedAtMs = nowMs();
+    this.db
+      .prepare(`UPDATE sessions SET updated_at_ms = ?, messages_json = ? WHERE id = ?`)
+      .run(session.updatedAtMs, JSON.stringify(session.messages), sessionId);
+    return session;
+  }
+
   async touch(sessionId: string): Promise<void> {
     const result = this.db
       .prepare(`UPDATE sessions SET updated_at_ms = ? WHERE id = ?`)

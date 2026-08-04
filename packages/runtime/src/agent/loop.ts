@@ -7,6 +7,15 @@ import type {
   MemoryStore,
   ToolCall,
 } from "../types.js";
+import {
+  reactiveCompact,
+  runCompactPipeline,
+} from "../context/compact.js";
+import {
+  isPromptTooLongError,
+  resolveCompactOptions,
+  type CompactOptions,
+} from "../context/estimate.js";
 import type { SessionStore } from "../session/memory-store.js";
 import type { ApprovalBroker } from "../tools/approval.js";
 import { AsyncEventQueue } from "../tools/event-queue.js";
@@ -28,6 +37,8 @@ export interface AgentLoopOptions {
   systemPrompt?: string;
   policy: ToolPolicy;
   approvals: ApprovalBroker;
+  workspaceRoot?: string;
+  compact?: CompactOptions;
 }
 
 export interface RunInput {
@@ -72,6 +83,8 @@ export class AgentLoop {
   private readonly toolTimeoutMs: number;
   private readonly approvalTimeoutMs: number;
   private readonly defaultSystemPrompt: string;
+  private readonly workspaceRoot: string;
+  private readonly compactOptions: CompactOptions;
 
   constructor(private readonly options: AgentLoopOptions) {
     this.logger = options.logger ?? consoleLogger;
@@ -82,6 +95,8 @@ export class AgentLoop {
     this.defaultSystemPrompt =
       options.systemPrompt ??
       "You are a helpful agent. Use tools when they improve accuracy.";
+    this.workspaceRoot = options.workspaceRoot ?? process.cwd();
+    this.compactOptions = options.compact ?? {};
   }
 
   cancel(runId: string): boolean {
@@ -146,7 +161,6 @@ export class AgentLoop {
             timestampMs: nowMs(),
           };
         }
-        await this.options.memory.summarizeIfNeeded(sessionId, 40);
       }
 
       const userMessage: ChatMessage = { role: "user", content: input.message };
@@ -155,6 +169,8 @@ export class AgentLoop {
 
       let steps = 0;
       let finalText = "";
+      let llmCompactFailures = 0;
+      const compactOpts = resolveCompactOptions(this.compactOptions);
 
       while (steps < maxSteps) {
         if (controller.signal.aborted) {
@@ -162,9 +178,54 @@ export class AgentLoop {
         }
 
         steps += 1;
-        const latest = await this.options.sessions.get(sessionId);
+        let latest = await this.options.sessions.get(sessionId);
         if (!latest) throw new Error(`Session not found: ${sessionId}`);
 
+        if (compactOpts.enabled) {
+          try {
+            const compacted = await runCompactPipeline({
+              messages: latest.messages,
+              sessionId,
+              workspaceRoot: this.workspaceRoot,
+              options: this.compactOptions,
+              llm: this.options.llm,
+              model,
+              abortSignal: controller.signal,
+              llmFailureCount: llmCompactFailures,
+            });
+            if (compacted.layers.length > 0) {
+              await this.options.sessions.replaceMessages(sessionId, compacted.messages);
+              for (const layer of compacted.layers) {
+                yield {
+                  type: "context.compacted",
+                  ...emitBase,
+                  layer,
+                  tokensBefore: compacted.tokensBefore,
+                  tokensAfter: compacted.tokensAfter,
+                  messagesBefore: compacted.messagesBefore,
+                  messagesAfter: compacted.messagesAfter,
+                  timestampMs: nowMs(),
+                };
+              }
+              if (compacted.layers.includes("llm") || compacted.layers.includes("manual")) {
+                llmCompactFailures = 0;
+              }
+              latest = await this.options.sessions.get(sessionId);
+              if (!latest) throw new Error(`Session not found: ${sessionId}`);
+            }
+          } catch (err) {
+            // Cheap layers shouldn't throw often; L4 failures trip the breaker.
+            llmCompactFailures += 1;
+            this.logger.warn("context compact failed", {
+              runId,
+              sessionId,
+              error: toErrorMessage(err),
+              llmCompactFailures,
+            });
+          }
+        }
+
+        if (!latest) throw new Error(`Session not found: ${sessionId}`);
         const systemPrompt = latest.systemPrompt || this.defaultSystemPrompt;
         const messages: ChatMessage[] = [
           { role: "system", content: systemPrompt },
@@ -172,16 +233,59 @@ export class AgentLoop {
         ];
 
         const toolDefs = this.options.tools.list();
-        const response = await this.options.llm.chat({
-          model,
-          messages,
-          tools: toolDefs.map((tool) => ({
-            name: tool.name,
-            description: tool.description,
-            parameters: tool.inputSchema,
-          })),
-          abortSignal: controller.signal,
-        });
+        let response;
+        let reactiveRetries = 0;
+        for (;;) {
+          try {
+            response = await this.options.llm.chat({
+              model,
+              messages,
+              tools: toolDefs.map((tool) => ({
+                name: tool.name,
+                description: tool.description,
+                parameters: tool.inputSchema,
+              })),
+              abortSignal: controller.signal,
+            });
+            break;
+          } catch (err) {
+            if (
+              !isPromptTooLongError(err) ||
+              reactiveRetries >= compactOpts.maxReactiveRetries
+            ) {
+              // Track L4 failures separately only when compact_history itself failed;
+              // prompt-too-long after cheap layers still gets reactive below.
+              throw err;
+            }
+            reactiveRetries += 1;
+            const reactive = await reactiveCompact(latest!.messages, {
+              llm: this.options.llm,
+              model,
+              workspaceRoot: this.workspaceRoot,
+              sessionId,
+              abortSignal: controller.signal,
+            });
+            await this.options.sessions.replaceMessages(sessionId, reactive.messages);
+            for (const layer of reactive.layers) {
+              yield {
+                type: "context.compacted",
+                ...emitBase,
+                layer,
+                tokensBefore: reactive.tokensBefore,
+                tokensAfter: reactive.tokensAfter,
+                messagesBefore: reactive.messagesBefore,
+                messagesAfter: reactive.messagesAfter,
+                timestampMs: nowMs(),
+              };
+            }
+            latest = (await this.options.sessions.get(sessionId))!;
+            messages.length = 0;
+            messages.push(
+              { role: "system", content: systemPrompt },
+              ...latest.messages,
+            );
+          }
+        }
 
         const assistant = response.message;
         if (assistant.content) {
@@ -320,6 +424,31 @@ export class AgentLoop {
       this.options.approvals.cancelRun(runId);
       this.activeRuns.delete(runId);
     }
+  }
+
+  /** Manually compact a session (RPC / compact tool). */
+  async compactSession(input: {
+    sessionId: string;
+    forceLlm?: boolean;
+    model?: string;
+    abortSignal?: AbortSignal;
+  }) {
+    const session = await this.options.sessions.get(input.sessionId);
+    if (!session) throw new Error(`Session not found: ${input.sessionId}`);
+    const result = await runCompactPipeline({
+      messages: session.messages,
+      sessionId: input.sessionId,
+      workspaceRoot: this.workspaceRoot,
+      options: this.compactOptions,
+      llm: this.options.llm,
+      model: input.model || this.options.defaultModel,
+      abortSignal: input.abortSignal,
+      forceLlm: input.forceLlm ?? true,
+    });
+    if (result.layers.length > 0 || result.messages !== session.messages) {
+      await this.options.sessions.replaceMessages(input.sessionId, result.messages);
+    }
+    return result;
   }
 
   private async executeToolCall(input: {

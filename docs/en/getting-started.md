@@ -46,7 +46,7 @@ pnpm dev
 
 Health check: `GET http://127.0.0.1:8787/healthz`
 
-Builtin tools: `now`, `calculator`, `todo_write`, `todo_read`, `list_dir`, `read_file`, `write_file`, `http_request`, `run_subagent`.  
+Builtin tools: `now`, `calculator`, `todo_write`, `todo_read`, `list_dir`, `read_file`, `write_file`, `http_request`, `run_subagent`, `compact`.
 `write_file` / `http_request` require approval unless `MINI_AGENT_AUTO_APPROVE=true`.  
 `todo_write` / `todo_read` persist a per-session task list under workspace `.mini-agent/todos/<sessionId>.json` (no approval).  
 `run_subagent` starts a read-only async child agent (isolated session). The parent run stream emits `subagentStarted` / `subagentProgress` / `subagentCompleted`; the tool result contains the child's final text. Default child tools: `now`, `calculator`, `list_dir`, `read_file`, `todo_*` (no nesting).
@@ -150,6 +150,16 @@ const jobs = await client.listCronJobs();
 ```
 
 For unattended runs, set job `autoApprove: true` and/or `MINI_AGENT_AUTO_APPROVE=true`. See [Architecture · Cron Scheduler](./architecture.md#cron-scheduler).
+
+## Context Compact
+
+Long sessions are compacted automatically (budget → snip → micro → LLM). You can also trigger manually:
+
+```ts
+await client.compactSession({ sessionId: session.id, forceLlm: true });
+```
+
+The model can call the builtin `compact` tool. See [Architecture · Context Compact](./architecture.md#context-compact).
 
 ## Protocol & transport
 

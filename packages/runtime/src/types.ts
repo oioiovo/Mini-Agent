@@ -150,6 +150,17 @@ export type AgentEvent =
       finalText: string;
       isError: boolean;
       timestampMs: number;
+    }
+  | {
+      type: "context.compacted";
+      runId: string;
+      sessionId: string;
+      layer: "snip" | "micro" | "budget" | "llm" | "reactive" | "manual";
+      tokensBefore: number;
+      tokensAfter: number;
+      messagesBefore: number;
+      messagesAfter: number;
+      timestampMs: number;
     };
 
 export interface LlmToolSpec {

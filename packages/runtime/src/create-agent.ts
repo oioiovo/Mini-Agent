@@ -1,5 +1,8 @@
 import { AgentLoop, type AgentLoopOptions, type RunInput } from "./agent/loop.js";
 import { SubagentRunner, type SubagentOptions } from "./agent/subagent.js";
+import type { CompactStepResult } from "./context/compact.js";
+import { createCompactTool } from "./context/compact-tool.js";
+import type { CompactOptions } from "./context/estimate.js";
 import { InMemoryMemoryStore } from "./memory/store.js";
 import type { MemoryStore } from "./types.js";
 import { McpManager, type McpServerConfig } from "./mcp/manager.js";
@@ -35,6 +38,7 @@ export interface CreateAgentOptions {
   workspaceRoot?: string;
   policy?: ToolPolicyOptions;
   subagent?: SubagentOptions;
+  compact?: CompactOptions;
   mcp?: { servers?: McpServerConfig[] };
   memory?: {
     shortTerm?: "session" | "memory";
@@ -92,6 +96,10 @@ export interface MiniAgent {
     approvalId: string,
     decision: "approve" | "deny",
   ): { ok: boolean; status: string };
+  compactSession(input: {
+    sessionId: string;
+    forceLlm?: boolean;
+  }): Promise<CompactStepResult>;
   listTools(): ToolDefinition[];
   registerTool(tool: RegisteredTool): void;
   registerHttpTool(options: Parameters<typeof defineHttpTool>[0]): void;
@@ -152,6 +160,8 @@ export async function createAgent(options: CreateAgentOptions = {}): Promise<Min
     systemPrompt: options.systemPrompt,
     policy,
     approvals,
+    workspaceRoot,
+    compact: options.compact,
   };
   const loop = new AgentLoop(loopOptions);
 
@@ -166,6 +176,7 @@ export async function createAgent(options: CreateAgentOptions = {}): Promise<Min
     options: options.subagent,
   });
   tools.upsert(subagentRunner.createTool());
+  tools.upsert(createCompactTool(loop));
 
   return {
     loop,
@@ -209,6 +220,9 @@ export async function createAgent(options: CreateAgentOptions = {}): Promise<Min
     },
     resolveApproval(runId, approvalId, decision) {
       return loop.resolveApproval(runId, approvalId, decision);
+    },
+    async compactSession(input) {
+      return loop.compactSession(input);
     },
     listTools() {
       return tools.list();

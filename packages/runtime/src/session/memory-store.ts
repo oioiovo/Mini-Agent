@@ -9,6 +9,7 @@ export interface SessionStore {
   }): Promise<SessionRecord>;
   get(sessionId: string): Promise<SessionRecord | undefined>;
   appendMessages(sessionId: string, messages: ChatMessage[]): Promise<SessionRecord>;
+  replaceMessages(sessionId: string, messages: ChatMessage[]): Promise<SessionRecord>;
   touch(sessionId: string): Promise<void>;
 }
 
@@ -41,6 +42,14 @@ export class InMemorySessionStore implements SessionStore {
     const session = this.sessions.get(sessionId);
     if (!session) throw new Error(`Session not found: ${sessionId}`);
     session.messages.push(...messages);
+    session.updatedAtMs = nowMs();
+    return structuredClone(session);
+  }
+
+  async replaceMessages(sessionId: string, messages: ChatMessage[]): Promise<SessionRecord> {
+    const session = this.sessions.get(sessionId);
+    if (!session) throw new Error(`Session not found: ${sessionId}`);
+    session.messages = [...messages];
     session.updatedAtMs = nowMs();
     return structuredClone(session);
   }

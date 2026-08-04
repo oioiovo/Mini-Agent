@@ -106,4 +106,27 @@ export {
   syncCronJobsFromConfig,
 } from "./cron/load-config.js";
 
+export {
+  estimateTokens,
+  isPromptTooLongError,
+  resolveCompactOptions,
+  DEFAULT_COMPACT_OPTIONS,
+} from "./context/estimate.js";
+export type { CompactLayer, CompactOptions } from "./context/estimate.js";
+export {
+  snipCompact,
+  microCompact,
+  toolResultBudget,
+  compactHistoryWithLlm,
+  writeTranscript,
+  runCompactPipeline,
+  reactiveCompact,
+} from "./context/compact.js";
+export type {
+  CompactStepResult,
+  RunCompactPipelineInput,
+  ToolResultBudgetOptions,
+} from "./context/compact.js";
+
+export { createCompactTool } from "./context/compact-tool.js";
 export { consoleLogger } from "./utils.js";

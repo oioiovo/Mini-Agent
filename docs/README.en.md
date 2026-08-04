@@ -13,6 +13,7 @@ A TypeScript single-core Agent Runtime that exposes a streaming API over Connect
 - Connect HTTP API + API Key auth + basic rate limiting
 - `@mini-agent/client` (Connect thin client)
 - Cron Scheduler (config file + proto CRUD; fires Agent runs on a schedule)
+- Context Compact (four-layer pipeline: budget / snip / micro / LLM)
 
 ## Quick start
 
