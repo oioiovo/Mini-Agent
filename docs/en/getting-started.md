@@ -32,6 +32,8 @@ MINI_AGENT_WORKSPACE=./workspace
 MINI_AGENT_AUTO_APPROVE=false
 # Allow http_request to private/LAN hosts
 MINI_AGENT_HTTP_ALLOW_PRIVATE=false
+# Optional cron jobs file (loads ./cron.jobs.yaml by default when present)
+# MINI_AGENT_CRON_FILE=./cron.jobs.yaml
 ```
 
 ## Start the runtime server
@@ -130,6 +132,24 @@ await client.upsertMcpServer({
 ```
 
 Tool names become: `mcp.filesystem.<tool>`.
+
+## Cron jobs
+
+Copy [`cron.jobs.example.yaml`](../../cron.jobs.example.yaml) to repo-root `cron.jobs.yaml`, or set `MINI_AGENT_CRON_FILE`. You can also manage jobs via the client:
+
+```ts
+await client.upsertCronJob({
+  id: "morning-digest",
+  cron: "0 9 * * *",
+  timezone: "Asia/Shanghai",
+  message: "Summarize workspace changes and open todos.",
+  sessionMode: "sticky",
+  autoApprove: true,
+});
+const jobs = await client.listCronJobs();
+```
+
+For unattended runs, set job `autoApprove: true` and/or `MINI_AGENT_AUTO_APPROVE=true`. See [Architecture · Cron Scheduler](./architecture.md#cron-scheduler).
 
 ## Protocol & transport
 

@@ -1,17 +1,28 @@
 import { Code, ConnectError, type ConnectRouter, type HandlerContext, type Interceptor } from "@connectrpc/connect";
 import { create } from "@bufbuild/protobuf";
-import type { AgentEvent as RuntimeEvent, MiniAgent } from "@mini-agent/runtime";
+import type {
+  AgentEvent as RuntimeEvent,
+  CronJobRecord,
+  CronJobStore,
+  MiniAgent,
+} from "@mini-agent/runtime";
 import {
   AgentEventSchema,
   AgentService,
+  CronJobSchema,
   type AgentEvent,
   type CancelRunRequest,
   type CreateSessionRequest,
+  type DeleteCronJobRequest,
+  type GetCronJobRequest,
   type GetSessionRequest,
+  type ListCronJobsRequest,
   type ListToolsRequest,
   type RegisterHttpToolRequest,
   type ResolveToolApprovalRequest,
   type RunAgentRequest,
+  type SetCronJobEnabledRequest,
+  type UpsertCronJobRequest,
   type UpsertMcpServerRequest,
   SessionSchema,
   ToolInfoSchema,
@@ -53,6 +64,39 @@ function toProtoSession(session: {
     systemPrompt: session.systemPrompt,
     messageCount: session.messageCount,
   });
+}
+
+function toProtoCronJob(job: CronJobRecord) {
+  return create(CronJobSchema, {
+    id: job.id,
+    cron: job.cron,
+    timezone: job.timezone,
+    message: job.message,
+    systemPrompt: job.systemPrompt,
+    sessionMode: job.sessionMode,
+    sessionId: job.sessionId,
+    model: job.model,
+    maxSteps: job.maxSteps,
+    timeoutMs: job.timeoutMs,
+    enabled: job.enabled,
+    autoApprove: job.autoApprove,
+    overlap: job.overlap,
+    source: job.source,
+    lastRunAtMs: BigInt(job.lastRunAtMs),
+    lastStatus: job.lastStatus,
+    lastError: job.lastError,
+    lastRunId: job.lastRunId,
+    nextRunAtMs: BigInt(job.nextRunAtMs),
+    createdAtMs: BigInt(job.createdAtMs),
+    updatedAtMs: BigInt(job.updatedAtMs),
+  });
+}
+
+function requireCronStore(store?: CronJobStore): CronJobStore {
+  if (!store) {
+    throw new ConnectError("Cron scheduler is disabled", Code.FailedPrecondition);
+  }
+  return store;
 }
 
 function toProtoEvent(event: RuntimeEvent): AgentEvent {
@@ -213,9 +257,14 @@ function toProtoEvent(event: RuntimeEvent): AgentEvent {
 export function registerAgentRoutes(
   router: ConnectRouter,
   agent: MiniAgent,
-  options: { apiKey?: string; rateLimiter?: MemoryRateLimiter } = {},
+  options: {
+    apiKey?: string;
+    rateLimiter?: MemoryRateLimiter;
+    cronStore?: CronJobStore;
+  } = {},
 ): void {
   const rateLimiter = options.rateLimiter ?? new MemoryRateLimiter();
+  const cronStore = options.cronStore;
 
   const guard = (ctx: HandlerContext) => {
     requireApiKey(ctx, options.apiKey);
@@ -334,6 +383,67 @@ export function registerAgentRoutes(
         env: req.env,
       });
       return { name: req.name, toolCount };
+    },
+
+    async upsertCronJob(req: UpsertCronJobRequest, ctx) {
+      guard(ctx);
+      const store = requireCronStore(cronStore);
+      try {
+        const job = store.upsert({
+          id: req.id || undefined,
+          cron: req.cron,
+          timezone: req.timezone || undefined,
+          message: req.message,
+          systemPrompt: req.systemPrompt || undefined,
+          sessionMode: req.sessionMode || undefined,
+          sessionId: req.sessionId || undefined,
+          model: req.model || undefined,
+          maxSteps: req.maxSteps || undefined,
+          timeoutMs: req.timeoutMs || undefined,
+          enabled: req.enabled,
+          autoApprove: req.autoApprove,
+          overlap: req.overlap || undefined,
+          source: "api",
+        });
+        return { job: toProtoCronJob(job) };
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        throw new ConnectError(message, Code.InvalidArgument);
+      }
+    },
+
+    async getCronJob(req: GetCronJobRequest, ctx) {
+      guard(ctx);
+      const store = requireCronStore(cronStore);
+      const job = store.get(req.id);
+      if (!job) {
+        throw new ConnectError(`Cron job not found: ${req.id}`, Code.NotFound);
+      }
+      return { job: toProtoCronJob(job) };
+    },
+
+    async listCronJobs(_req: ListCronJobsRequest, ctx) {
+      guard(ctx);
+      const store = requireCronStore(cronStore);
+      return { jobs: store.list().map(toProtoCronJob) };
+    },
+
+    async deleteCronJob(req: DeleteCronJobRequest, ctx) {
+      guard(ctx);
+      const store = requireCronStore(cronStore);
+      return { deleted: store.delete(req.id) };
+    },
+
+    async setCronJobEnabled(req: SetCronJobEnabledRequest, ctx) {
+      guard(ctx);
+      const store = requireCronStore(cronStore);
+      try {
+        const job = store.setEnabled(req.id, req.enabled);
+        return { job: toProtoCronJob(job) };
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        throw new ConnectError(message, Code.NotFound);
+      }
     },
   });
 }

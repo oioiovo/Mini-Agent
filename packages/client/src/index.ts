@@ -11,7 +11,13 @@ import {
   RegisterHttpToolRequestSchema,
   ResolveToolApprovalRequestSchema,
   UpsertMcpServerRequestSchema,
+  UpsertCronJobRequestSchema,
+  GetCronJobRequestSchema,
+  ListCronJobsRequestSchema,
+  DeleteCronJobRequestSchema,
+  SetCronJobEnabledRequestSchema,
   type AgentEvent,
+  type CronJob,
   type Session,
   type ToolInfo,
 } from "@mini-agent/shared";
@@ -157,5 +163,71 @@ export class MiniAgentClient {
       }),
     );
     return { name: res.name, toolCount: res.toolCount };
+  }
+
+  async upsertCronJob(input: {
+    id?: string;
+    cron: string;
+    message: string;
+    timezone?: string;
+    systemPrompt?: string;
+    sessionMode?: "sticky" | "ephemeral";
+    sessionId?: string;
+    model?: string;
+    maxSteps?: number;
+    timeoutMs?: number;
+    enabled?: boolean;
+    autoApprove?: boolean;
+    overlap?: "skip";
+  }): Promise<CronJob> {
+    const res = await this.client.upsertCronJob(
+      create(UpsertCronJobRequestSchema, {
+        id: input.id ?? "",
+        cron: input.cron,
+        timezone: input.timezone ?? "",
+        message: input.message,
+        systemPrompt: input.systemPrompt ?? "",
+        sessionMode: input.sessionMode ?? "",
+        sessionId: input.sessionId ?? "",
+        model: input.model ?? "",
+        maxSteps: input.maxSteps ?? 0,
+        timeoutMs: input.timeoutMs ?? 0,
+        enabled: input.enabled,
+        autoApprove: input.autoApprove,
+        overlap: input.overlap ?? "",
+      }),
+    );
+    if (!res.job) throw new Error("UpsertCronJob returned empty job");
+    return res.job;
+  }
+
+  async getCronJob(id: string): Promise<CronJob> {
+    const res = await this.client.getCronJob(
+      create(GetCronJobRequestSchema, { id }),
+    );
+    if (!res.job) throw new Error("GetCronJob returned empty job");
+    return res.job;
+  }
+
+  async listCronJobs(): Promise<CronJob[]> {
+    const res = await this.client.listCronJobs(
+      create(ListCronJobsRequestSchema, {}),
+    );
+    return res.jobs;
+  }
+
+  async deleteCronJob(id: string): Promise<boolean> {
+    const res = await this.client.deleteCronJob(
+      create(DeleteCronJobRequestSchema, { id }),
+    );
+    return res.deleted;
+  }
+
+  async setCronJobEnabled(id: string, enabled: boolean): Promise<CronJob> {
+    const res = await this.client.setCronJobEnabled(
+      create(SetCronJobEnabledRequestSchema, { id, enabled }),
+    );
+    if (!res.job) throw new Error("SetCronJobEnabled returned empty job");
+    return res.job;
   }
 }

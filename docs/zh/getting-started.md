@@ -32,6 +32,8 @@ MINI_AGENT_WORKSPACE=./workspace
 MINI_AGENT_AUTO_APPROVE=false
 # 是否允许 http_request 访问私网 / LAN
 MINI_AGENT_HTTP_ALLOW_PRIVATE=false
+# 可选：cron 任务文件（默认若存在则加载 ./cron.jobs.yaml）
+# MINI_AGENT_CRON_FILE=./cron.jobs.yaml
 ```
 
 ## 启动 Runtime 服务
@@ -130,6 +132,24 @@ await client.upsertMcpServer({
 ```
 
 工具名会变成：`mcp.filesystem.<tool>`。
+
+## Cron 定时任务
+
+复制 [`cron.jobs.example.yaml`](../../cron.jobs.example.yaml) 为仓库根 `cron.jobs.yaml`，或设置 `MINI_AGENT_CRON_FILE`。也可用客户端动态管理：
+
+```ts
+await client.upsertCronJob({
+  id: "morning-digest",
+  cron: "0 9 * * *",
+  timezone: "Asia/Shanghai",
+  message: "Summarize workspace changes and open todos.",
+  sessionMode: "sticky",
+  autoApprove: true,
+});
+const jobs = await client.listCronJobs();
+```
+
+无人值守时请设置 job 的 `autoApprove: true`，和/或 `MINI_AGENT_AUTO_APPROVE=true`。详见[架构 · Cron Scheduler](./architecture.md#cron-scheduler)。
 
 ## 协议与传输
 

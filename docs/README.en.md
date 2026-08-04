@@ -12,6 +12,7 @@ A TypeScript single-core Agent Runtime that exposes a streaming API over Connect
 - OpenAI-compatible LLM Provider
 - Connect HTTP API + API Key auth + basic rate limiting
 - `@mini-agent/client` (Connect thin client)
+- Cron Scheduler (config file + proto CRUD; fires Agent runs on a schedule)
 
 ## Quick start
 

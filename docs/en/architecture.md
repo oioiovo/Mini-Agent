@@ -44,8 +44,19 @@ Single contract: `proto/agent/v1/agent.proto`
 - `ListTools`
 - `RegisterHttpTool`
 - `UpsertMcpServer`
+- `UpsertCronJob` / `GetCronJob` / `ListCronJobs` / `DeleteCronJob` / `SetCronJobEnabled`
 
 Generate: `pnpm generate` → `packages/shared/src/gen`
+
+## Cron Scheduler
+
+In-process scheduler on the server: fires cron expressions by calling `agent.run` directly (no loopback HTTP).
+
+- Storage: `MINI_AGENT_DATA_DIR/cron.sqlite`
+- Config file: loads repo-root `cron.jobs.yaml` by default (or `MINI_AGENT_CRON_FILE`); `source=file` jobs sync on startup; `source=api` jobs are not deleted by file sync
+- Dynamic management: Cron RPCs above; observe via `last_*` / `next_run_at_ms`
+- Unattended approvals: per-job `auto_approve`, or global `MINI_AGENT_AUTO_APPROVE`
+- Overlap: default `skip` (skip if previous run still in progress)
 
 ## Memory layers
 

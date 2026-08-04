@@ -1,0 +1,14 @@
+# Example cron jobs for Mini-Agent.
+# Copy to cron.jobs.yaml (repo root) or set MINI_AGENT_CRON_FILE.
+#
+# Unattended runs: set auto_approve: true on the job, and/or
+# MINI_AGENT_AUTO_APPROVE=true for write/network tools globally.
+
+jobs:
+  - id: morning-digest
+    cron: "0 9 * * *"
+    timezone: Asia/Shanghai
+    message: Summarize workspace changes and open todos.
+    session_mode: sticky
+    auto_approve: true
+    enabled: false

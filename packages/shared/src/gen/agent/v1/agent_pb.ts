@@ -10,7 +10,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file agent/v1/agent.proto.
  */
 export const file_agent_v1_agent: GenFile = /*@__PURE__*/
-  fileDesc("ChRhZ2VudC92MS9hZ2VudC5wcm90bxIIYWdlbnQudjEingEKFENyZWF0ZVNlc3Npb25SZXF1ZXN0Ej4KCG1ldGFkYXRhGAEgAygLMiwuYWdlbnQudjEuQ3JlYXRlU2Vzc2lvblJlcXVlc3QuTWV0YWRhdGFFbnRyeRIVCg1zeXN0ZW1fcHJvbXB0GAIgASgJGi8KDU1ldGFkYXRhRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ASI7ChVDcmVhdGVTZXNzaW9uUmVzcG9uc2USIgoHc2Vzc2lvbhgBIAEoCzIRLmFnZW50LnYxLlNlc3Npb24iJwoRR2V0U2Vzc2lvblJlcXVlc3QSEgoKc2Vzc2lvbl9pZBgBIAEoCSI4ChJHZXRTZXNzaW9uUmVzcG9uc2USIgoHc2Vzc2lvbhgBIAEoCzIRLmFnZW50LnYxLlNlc3Npb24i1QEKB1Nlc3Npb24SCgoCaWQYASABKAkSFQoNY3JlYXRlZF9hdF9tcxgCIAEoAxIVCg11cGRhdGVkX2F0X21zGAMgASgDEjEKCG1ldGFkYXRhGAQgAygLMh8uYWdlbnQudjEuU2Vzc2lvbi5NZXRhZGF0YUVudHJ5EhUKDXN5c3RlbV9wcm9tcHQYBSABKAkSFQoNbWVzc2FnZV9jb3VudBgGIAEoBRovCg1NZXRhZGF0YUVudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEibAoPUnVuQWdlbnRSZXF1ZXN0EhIKCnNlc3Npb25faWQYASABKAkSDwoHbWVzc2FnZRgCIAEoCRINCgVtb2RlbBgDIAEoCRIRCgltYXhfc3RlcHMYBCABKAUSEgoKdGltZW91dF9tcxgFIAEoBSIiChBDYW5jZWxSdW5SZXF1ZXN0Eg4KBnJ1bl9pZBgBIAEoCSImChFDYW5jZWxSdW5SZXNwb25zZRIRCgljYW5jZWxsZWQYASABKAgiYQoaUmVzb2x2ZVRvb2xBcHByb3ZhbFJlcXVlc3QSDgoGcnVuX2lkGAEgASgJEhMKC2FwcHJvdmFsX2lkGAIgASgJEhAKCGRlY2lzaW9uGAMgASgJEgwKBG5vdGUYBCABKAkiOQobUmVzb2x2ZVRvb2xBcHByb3ZhbFJlc3BvbnNlEgoKAm9rGAEgASgIEg4KBnN0YXR1cxgCIAEoCSISChBMaXN0VG9vbHNSZXF1ZXN0IjYKEUxpc3RUb29sc1Jlc3BvbnNlEiEKBXRvb2xzGAEgAygLMhIuYWdlbnQudjEuVG9vbEluZm8ilgEKCFRvb2xJbmZvEgwKBG5hbWUYASABKAkSEwoLZGVzY3JpcHRpb24YAiABKAkSGQoRaW5wdXRfc2NoZW1hX2pzb24YAyABKAkSDgoGc291cmNlGAQgASgJEhMKC3NpZGVfZWZmZWN0GAUgASgIEhkKEXJlcXVpcmVzX2FwcHJvdmFsGAYgASgIEgwKBHJpc2sYByABKAkihQIKF1JlZ2lzdGVySHR0cFRvb2xSZXF1ZXN0EgwKBG5hbWUYASABKAkSEwoLZGVzY3JpcHRpb24YAiABKAkSGQoRaW5wdXRfc2NoZW1hX2pzb24YAyABKAkSCwoDdXJsGAQgASgJEj8KB2hlYWRlcnMYBSADKAsyLi5hZ2VudC52MS5SZWdpc3Rlckh0dHBUb29sUmVxdWVzdC5IZWFkZXJzRW50cnkSEwoLc2lkZV9lZmZlY3QYBiABKAgSGQoRcmVxdWlyZXNfYXBwcm92YWwYByABKAgaLgoMSGVhZGVyc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEiPAoYUmVnaXN0ZXJIdHRwVG9vbFJlc3BvbnNlEiAKBHRvb2wYASABKAsyEi5hZ2VudC52MS5Ub29sSW5mbyK9AQoWVXBzZXJ0TWNwU2VydmVyUmVxdWVzdBIMCgRuYW1lGAEgASgJEhEKCXRyYW5zcG9ydBgCIAEoCRIQCghlbmRwb2ludBgDIAEoCRIMCgRhcmdzGAQgAygJEjYKA2VudhgFIAMoCzIpLmFnZW50LnYxLlVwc2VydE1jcFNlcnZlclJlcXVlc3QuRW52RW50cnkaKgoIRW52RW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ASI7ChdVcHNlcnRNY3BTZXJ2ZXJSZXNwb25zZRIMCgRuYW1lGAEgASgJEhIKCnRvb2xfY291bnQYAiABKAUi5QUKCkFnZW50RXZlbnQSDgoGcnVuX2lkGAEgASgJEhIKCnNlc3Npb25faWQYAiABKAkSFAoMdGltZXN0YW1wX21zGAMgASgDEjAKC3J1bl9zdGFydGVkGAogASgLMhkuYWdlbnQudjEuUnVuU3RhcnRlZEV2ZW50SAASLgoKdGV4dF9kZWx0YRgLIAEoCzIYLmFnZW50LnYxLlRleHREZWx0YUV2ZW50SAASLAoJdG9vbF9jYWxsGAwgASgLMhcuYWdlbnQudjEuVG9vbENhbGxFdmVudEgAEjAKC3Rvb2xfcmVzdWx0GA0gASgLMhkuYWdlbnQudjEuVG9vbFJlc3VsdEV2ZW50SAASLgoKbWVtb3J5X2hpdBgOIAEoCzIYLmFnZW50LnYxLk1lbW9yeUhpdEV2ZW50SAASNAoNcnVuX2NvbXBsZXRlZBgPIAEoCzIbLmFnZW50LnYxLlJ1bkNvbXBsZXRlZEV2ZW50SAASLAoJcnVuX2Vycm9yGBAgASgLMhcuYWdlbnQudjEuUnVuRXJyb3JFdmVudEgAEkUKFnRvb2xfYXBwcm92YWxfcmVxdWlyZWQYESABKAsyIy5hZ2VudC52MS5Ub29sQXBwcm92YWxSZXF1aXJlZEV2ZW50SAASOwoRdG9vbF9yZXN1bHRfZGVsdGEYEiABKAsyHi5hZ2VudC52MS5Ub29sUmVzdWx0RGVsdGFFdmVudEgAEjoKEHN1YmFnZW50X3N0YXJ0ZWQYEyABKAsyHi5hZ2VudC52MS5TdWJhZ2VudFN0YXJ0ZWRFdmVudEgAEjwKEXN1YmFnZW50X3Byb2dyZXNzGBQgASgLMh8uYWdlbnQudjEuU3ViYWdlbnRQcm9ncmVzc0V2ZW50SAASPgoSc3ViYWdlbnRfY29tcGxldGVkGBUgASgLMiAuYWdlbnQudjEuU3ViYWdlbnRDb21wbGV0ZWRFdmVudEgAQgkKB3BheWxvYWQiIAoPUnVuU3RhcnRlZEV2ZW50Eg0KBW1vZGVsGAEgASgJIh4KDlRleHREZWx0YUV2ZW50EgwKBHRleHQYASABKAkiUAoNVG9vbENhbGxFdmVudBIUCgx0b29sX2NhbGxfaWQYASABKAkSEQoJdG9vbF9uYW1lGAIgASgJEhYKDmFyZ3VtZW50c19qc29uGAMgASgJImEKD1Rvb2xSZXN1bHRFdmVudBIUCgx0b29sX2NhbGxfaWQYASABKAkSEQoJdG9vbF9uYW1lGAIgASgJEhMKC3Jlc3VsdF9qc29uGAMgASgJEhAKCGlzX2Vycm9yGAQgASgIImAKFFRvb2xSZXN1bHREZWx0YUV2ZW50EhQKDHRvb2xfY2FsbF9pZBgBIAEoCRIRCgl0b29sX25hbWUYAiABKAkSDQoFY2h1bmsYAyABKAkSEAoIc2VxdWVuY2UYBCABKAUijwEKGVRvb2xBcHByb3ZhbFJlcXVpcmVkRXZlbnQSEwoLYXBwcm92YWxfaWQYASABKAkSFAoMdG9vbF9jYWxsX2lkGAIgASgJEhEKCXRvb2xfbmFtZRgDIAEoCRIWCg5hcmd1bWVudHNfanNvbhgEIAEoCRIMCgRyaXNrGAUgASgJEg4KBnJlYXNvbhgGIAEoCSJDCg5NZW1vcnlIaXRFdmVudBIRCgltZW1vcnlfaWQYASABKAkSDwoHY29udGVudBgCIAEoCRINCgVzY29yZRgDIAEoASI2ChFSdW5Db21wbGV0ZWRFdmVudBISCgpmaW5hbF90ZXh0GAEgASgJEg0KBXN0ZXBzGAIgASgFIi4KDVJ1bkVycm9yRXZlbnQSDAoEY29kZRgBIAEoCRIPCgdtZXNzYWdlGAIgASgJImsKFFN1YmFnZW50U3RhcnRlZEV2ZW50EhMKC3N1YmFnZW50X2lkGAEgASgJEhQKDGNoaWxkX3J1bl9pZBgCIAEoCRIYChBjaGlsZF9zZXNzaW9uX2lkGAMgASgJEg4KBnByb21wdBgEIAEoCSKHAQoVU3ViYWdlbnRQcm9ncmVzc0V2ZW50EhMKC3N1YmFnZW50X2lkGAEgASgJEhQKDGNoaWxkX3J1bl9pZBgCIAEoCRIMCgRraW5kGAMgASgJEgwKBHRleHQYBCABKAkSEQoJdG9vbF9uYW1lGAUgASgJEhQKDHBheWxvYWRfanNvbhgGIAEoCSJpChZTdWJhZ2VudENvbXBsZXRlZEV2ZW50EhMKC3N1YmFnZW50X2lkGAEgASgJEhQKDGNoaWxkX3J1bl9pZBgCIAEoCRISCgpmaW5hbF90ZXh0GAMgASgJEhAKCGlzX2Vycm9yGAQgASgIMosFCgxBZ2VudFNlcnZpY2USUAoNQ3JlYXRlU2Vzc2lvbhIeLmFnZW50LnYxLkNyZWF0ZVNlc3Npb25SZXF1ZXN0Gh8uYWdlbnQudjEuQ3JlYXRlU2Vzc2lvblJlc3BvbnNlEkcKCkdldFNlc3Npb24SGy5hZ2VudC52MS5HZXRTZXNzaW9uUmVxdWVzdBocLmFnZW50LnYxLkdldFNlc3Npb25SZXNwb25zZRI9CghSdW5BZ2VudBIZLmFnZW50LnYxLlJ1bkFnZW50UmVxdWVzdBoULmFnZW50LnYxLkFnZW50RXZlbnQwARJECglDYW5jZWxSdW4SGi5hZ2VudC52MS5DYW5jZWxSdW5SZXF1ZXN0GhsuYWdlbnQudjEuQ2FuY2VsUnVuUmVzcG9uc2USYgoTUmVzb2x2ZVRvb2xBcHByb3ZhbBIkLmFnZW50LnYxLlJlc29sdmVUb29sQXBwcm92YWxSZXF1ZXN0GiUuYWdlbnQudjEuUmVzb2x2ZVRvb2xBcHByb3ZhbFJlc3BvbnNlEkQKCUxpc3RUb29scxIaLmFnZW50LnYxLkxpc3RUb29sc1JlcXVlc3QaGy5hZ2VudC52MS5MaXN0VG9vbHNSZXNwb25zZRJZChBSZWdpc3Rlckh0dHBUb29sEiEuYWdlbnQudjEuUmVnaXN0ZXJIdHRwVG9vbFJlcXVlc3QaIi5hZ2VudC52MS5SZWdpc3Rlckh0dHBUb29sUmVzcG9uc2USVgoPVXBzZXJ0TWNwU2VydmVyEiAuYWdlbnQudjEuVXBzZXJ0TWNwU2VydmVyUmVxdWVzdBohLmFnZW50LnYxLlVwc2VydE1jcFNlcnZlclJlc3BvbnNlQgJQAWIGcHJvdG8z");
+  fileDesc("ChRhZ2VudC92MS9hZ2VudC5wcm90bxIIYWdlbnQudjEingEKFENyZWF0ZVNlc3Npb25SZXF1ZXN0Ej4KCG1ldGFkYXRhGAEgAygLMiwuYWdlbnQudjEuQ3JlYXRlU2Vzc2lvblJlcXVlc3QuTWV0YWRhdGFFbnRyeRIVCg1zeXN0ZW1fcHJvbXB0GAIgASgJGi8KDU1ldGFkYXRhRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ASI7ChVDcmVhdGVTZXNzaW9uUmVzcG9uc2USIgoHc2Vzc2lvbhgBIAEoCzIRLmFnZW50LnYxLlNlc3Npb24iJwoRR2V0U2Vzc2lvblJlcXVlc3QSEgoKc2Vzc2lvbl9pZBgBIAEoCSI4ChJHZXRTZXNzaW9uUmVzcG9uc2USIgoHc2Vzc2lvbhgBIAEoCzIRLmFnZW50LnYxLlNlc3Npb24i1QEKB1Nlc3Npb24SCgoCaWQYASABKAkSFQoNY3JlYXRlZF9hdF9tcxgCIAEoAxIVCg11cGRhdGVkX2F0X21zGAMgASgDEjEKCG1ldGFkYXRhGAQgAygLMh8uYWdlbnQudjEuU2Vzc2lvbi5NZXRhZGF0YUVudHJ5EhUKDXN5c3RlbV9wcm9tcHQYBSABKAkSFQoNbWVzc2FnZV9jb3VudBgGIAEoBRovCg1NZXRhZGF0YUVudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEibAoPUnVuQWdlbnRSZXF1ZXN0EhIKCnNlc3Npb25faWQYASABKAkSDwoHbWVzc2FnZRgCIAEoCRINCgVtb2RlbBgDIAEoCRIRCgltYXhfc3RlcHMYBCABKAUSEgoKdGltZW91dF9tcxgFIAEoBSIiChBDYW5jZWxSdW5SZXF1ZXN0Eg4KBnJ1bl9pZBgBIAEoCSImChFDYW5jZWxSdW5SZXNwb25zZRIRCgljYW5jZWxsZWQYASABKAgiYQoaUmVzb2x2ZVRvb2xBcHByb3ZhbFJlcXVlc3QSDgoGcnVuX2lkGAEgASgJEhMKC2FwcHJvdmFsX2lkGAIgASgJEhAKCGRlY2lzaW9uGAMgASgJEgwKBG5vdGUYBCABKAkiOQobUmVzb2x2ZVRvb2xBcHByb3ZhbFJlc3BvbnNlEgoKAm9rGAEgASgIEg4KBnN0YXR1cxgCIAEoCSISChBMaXN0VG9vbHNSZXF1ZXN0IjYKEUxpc3RUb29sc1Jlc3BvbnNlEiEKBXRvb2xzGAEgAygLMhIuYWdlbnQudjEuVG9vbEluZm8ilgEKCFRvb2xJbmZvEgwKBG5hbWUYASABKAkSEwoLZGVzY3JpcHRpb24YAiABKAkSGQoRaW5wdXRfc2NoZW1hX2pzb24YAyABKAkSDgoGc291cmNlGAQgASgJEhMKC3NpZGVfZWZmZWN0GAUgASgIEhkKEXJlcXVpcmVzX2FwcHJvdmFsGAYgASgIEgwKBHJpc2sYByABKAkihQIKF1JlZ2lzdGVySHR0cFRvb2xSZXF1ZXN0EgwKBG5hbWUYASABKAkSEwoLZGVzY3JpcHRpb24YAiABKAkSGQoRaW5wdXRfc2NoZW1hX2pzb24YAyABKAkSCwoDdXJsGAQgASgJEj8KB2hlYWRlcnMYBSADKAsyLi5hZ2VudC52MS5SZWdpc3Rlckh0dHBUb29sUmVxdWVzdC5IZWFkZXJzRW50cnkSEwoLc2lkZV9lZmZlY3QYBiABKAgSGQoRcmVxdWlyZXNfYXBwcm92YWwYByABKAgaLgoMSGVhZGVyc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEiPAoYUmVnaXN0ZXJIdHRwVG9vbFJlc3BvbnNlEiAKBHRvb2wYASABKAsyEi5hZ2VudC52MS5Ub29sSW5mbyK9AQoWVXBzZXJ0TWNwU2VydmVyUmVxdWVzdBIMCgRuYW1lGAEgASgJEhEKCXRyYW5zcG9ydBgCIAEoCRIQCghlbmRwb2ludBgDIAEoCRIMCgRhcmdzGAQgAygJEjYKA2VudhgFIAMoCzIpLmFnZW50LnYxLlVwc2VydE1jcFNlcnZlclJlcXVlc3QuRW52RW50cnkaKgoIRW52RW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ASI7ChdVcHNlcnRNY3BTZXJ2ZXJSZXNwb25zZRIMCgRuYW1lGAEgASgJEhIKCnRvb2xfY291bnQYAiABKAUi5QUKCkFnZW50RXZlbnQSDgoGcnVuX2lkGAEgASgJEhIKCnNlc3Npb25faWQYAiABKAkSFAoMdGltZXN0YW1wX21zGAMgASgDEjAKC3J1bl9zdGFydGVkGAogASgLMhkuYWdlbnQudjEuUnVuU3RhcnRlZEV2ZW50SAASLgoKdGV4dF9kZWx0YRgLIAEoCzIYLmFnZW50LnYxLlRleHREZWx0YUV2ZW50SAASLAoJdG9vbF9jYWxsGAwgASgLMhcuYWdlbnQudjEuVG9vbENhbGxFdmVudEgAEjAKC3Rvb2xfcmVzdWx0GA0gASgLMhkuYWdlbnQudjEuVG9vbFJlc3VsdEV2ZW50SAASLgoKbWVtb3J5X2hpdBgOIAEoCzIYLmFnZW50LnYxLk1lbW9yeUhpdEV2ZW50SAASNAoNcnVuX2NvbXBsZXRlZBgPIAEoCzIbLmFnZW50LnYxLlJ1bkNvbXBsZXRlZEV2ZW50SAASLAoJcnVuX2Vycm9yGBAgASgLMhcuYWdlbnQudjEuUnVuRXJyb3JFdmVudEgAEkUKFnRvb2xfYXBwcm92YWxfcmVxdWlyZWQYESABKAsyIy5hZ2VudC52MS5Ub29sQXBwcm92YWxSZXF1aXJlZEV2ZW50SAASOwoRdG9vbF9yZXN1bHRfZGVsdGEYEiABKAsyHi5hZ2VudC52MS5Ub29sUmVzdWx0RGVsdGFFdmVudEgAEjoKEHN1YmFnZW50X3N0YXJ0ZWQYEyABKAsyHi5hZ2VudC52MS5TdWJhZ2VudFN0YXJ0ZWRFdmVudEgAEjwKEXN1YmFnZW50X3Byb2dyZXNzGBQgASgLMh8uYWdlbnQudjEuU3ViYWdlbnRQcm9ncmVzc0V2ZW50SAASPgoSc3ViYWdlbnRfY29tcGxldGVkGBUgASgLMiAuYWdlbnQudjEuU3ViYWdlbnRDb21wbGV0ZWRFdmVudEgAQgkKB3BheWxvYWQiIAoPUnVuU3RhcnRlZEV2ZW50Eg0KBW1vZGVsGAEgASgJIh4KDlRleHREZWx0YUV2ZW50EgwKBHRleHQYASABKAkiUAoNVG9vbENhbGxFdmVudBIUCgx0b29sX2NhbGxfaWQYASABKAkSEQoJdG9vbF9uYW1lGAIgASgJEhYKDmFyZ3VtZW50c19qc29uGAMgASgJImEKD1Rvb2xSZXN1bHRFdmVudBIUCgx0b29sX2NhbGxfaWQYASABKAkSEQoJdG9vbF9uYW1lGAIgASgJEhMKC3Jlc3VsdF9qc29uGAMgASgJEhAKCGlzX2Vycm9yGAQgASgIImAKFFRvb2xSZXN1bHREZWx0YUV2ZW50EhQKDHRvb2xfY2FsbF9pZBgBIAEoCRIRCgl0b29sX25hbWUYAiABKAkSDQoFY2h1bmsYAyABKAkSEAoIc2VxdWVuY2UYBCABKAUijwEKGVRvb2xBcHByb3ZhbFJlcXVpcmVkRXZlbnQSEwoLYXBwcm92YWxfaWQYASABKAkSFAoMdG9vbF9jYWxsX2lkGAIgASgJEhEKCXRvb2xfbmFtZRgDIAEoCRIWCg5hcmd1bWVudHNfanNvbhgEIAEoCRIMCgRyaXNrGAUgASgJEg4KBnJlYXNvbhgGIAEoCSJDCg5NZW1vcnlIaXRFdmVudBIRCgltZW1vcnlfaWQYASABKAkSDwoHY29udGVudBgCIAEoCRINCgVzY29yZRgDIAEoASI2ChFSdW5Db21wbGV0ZWRFdmVudBISCgpmaW5hbF90ZXh0GAEgASgJEg0KBXN0ZXBzGAIgASgFIi4KDVJ1bkVycm9yRXZlbnQSDAoEY29kZRgBIAEoCRIPCgdtZXNzYWdlGAIgASgJImsKFFN1YmFnZW50U3RhcnRlZEV2ZW50EhMKC3N1YmFnZW50X2lkGAEgASgJEhQKDGNoaWxkX3J1bl9pZBgCIAEoCRIYChBjaGlsZF9zZXNzaW9uX2lkGAMgASgJEg4KBnByb21wdBgEIAEoCSKHAQoVU3ViYWdlbnRQcm9ncmVzc0V2ZW50EhMKC3N1YmFnZW50X2lkGAEgASgJEhQKDGNoaWxkX3J1bl9pZBgCIAEoCRIMCgRraW5kGAMgASgJEgwKBHRleHQYBCABKAkSEQoJdG9vbF9uYW1lGAUgASgJEhQKDHBheWxvYWRfanNvbhgGIAEoCSJpChZTdWJhZ2VudENvbXBsZXRlZEV2ZW50EhMKC3N1YmFnZW50X2lkGAEgASgJEhQKDGNoaWxkX3J1bl9pZBgCIAEoCRISCgpmaW5hbF90ZXh0GAMgASgJEhAKCGlzX2Vycm9yGAQgASgIIqEDCgdDcm9uSm9iEgoKAmlkGAEgASgJEgwKBGNyb24YAiABKAkSEAoIdGltZXpvbmUYAyABKAkSDwoHbWVzc2FnZRgEIAEoCRIVCg1zeXN0ZW1fcHJvbXB0GAUgASgJEhQKDHNlc3Npb25fbW9kZRgGIAEoCRISCgpzZXNzaW9uX2lkGAcgASgJEg0KBW1vZGVsGAggASgJEhEKCW1heF9zdGVwcxgJIAEoBRISCgp0aW1lb3V0X21zGAogASgFEg8KB2VuYWJsZWQYCyABKAgSFAoMYXV0b19hcHByb3ZlGAwgASgIEg8KB292ZXJsYXAYDSABKAkSDgoGc291cmNlGA4gASgJEhYKDmxhc3RfcnVuX2F0X21zGA8gASgDEhMKC2xhc3Rfc3RhdHVzGBAgASgJEhIKCmxhc3RfZXJyb3IYESABKAkSEwoLbGFzdF9ydW5faWQYEiABKAkSFgoObmV4dF9ydW5fYXRfbXMYEyABKAMSFQoNY3JlYXRlZF9hdF9tcxgUIAEoAxIVCg11cGRhdGVkX2F0X21zGBUgASgDIqkCChRVcHNlcnRDcm9uSm9iUmVxdWVzdBIKCgJpZBgBIAEoCRIMCgRjcm9uGAIgASgJEhAKCHRpbWV6b25lGAMgASgJEg8KB21lc3NhZ2UYBCABKAkSFQoNc3lzdGVtX3Byb21wdBgFIAEoCRIUCgxzZXNzaW9uX21vZGUYBiABKAkSEgoKc2Vzc2lvbl9pZBgHIAEoCRINCgVtb2RlbBgIIAEoCRIRCgltYXhfc3RlcHMYCSABKAUSEgoKdGltZW91dF9tcxgKIAEoBRIUCgdlbmFibGVkGAsgASgISACIAQESGQoMYXV0b19hcHByb3ZlGAwgASgISAGIAQESDwoHb3ZlcmxhcBgNIAEoCUIKCghfZW5hYmxlZEIPCg1fYXV0b19hcHByb3ZlIjcKFVVwc2VydENyb25Kb2JSZXNwb25zZRIeCgNqb2IYASABKAsyES5hZ2VudC52MS5Dcm9uSm9iIh8KEUdldENyb25Kb2JSZXF1ZXN0EgoKAmlkGAEgASgJIjQKEkdldENyb25Kb2JSZXNwb25zZRIeCgNqb2IYASABKAsyES5hZ2VudC52MS5Dcm9uSm9iIhUKE0xpc3RDcm9uSm9ic1JlcXVlc3QiNwoUTGlzdENyb25Kb2JzUmVzcG9uc2USHwoEam9icxgBIAMoCzIRLmFnZW50LnYxLkNyb25Kb2IiIgoURGVsZXRlQ3JvbkpvYlJlcXVlc3QSCgoCaWQYASABKAkiKAoVRGVsZXRlQ3JvbkpvYlJlc3BvbnNlEg8KB2RlbGV0ZWQYASABKAgiNwoYU2V0Q3JvbkpvYkVuYWJsZWRSZXF1ZXN0EgoKAmlkGAEgASgJEg8KB2VuYWJsZWQYAiABKAgiOwoZU2V0Q3JvbkpvYkVuYWJsZWRSZXNwb25zZRIeCgNqb2IYASABKAsyES5hZ2VudC52MS5Dcm9uSm9iMqUICgxBZ2VudFNlcnZpY2USUAoNQ3JlYXRlU2Vzc2lvbhIeLmFnZW50LnYxLkNyZWF0ZVNlc3Npb25SZXF1ZXN0Gh8uYWdlbnQudjEuQ3JlYXRlU2Vzc2lvblJlc3BvbnNlEkcKCkdldFNlc3Npb24SGy5hZ2VudC52MS5HZXRTZXNzaW9uUmVxdWVzdBocLmFnZW50LnYxLkdldFNlc3Npb25SZXNwb25zZRI9CghSdW5BZ2VudBIZLmFnZW50LnYxLlJ1bkFnZW50UmVxdWVzdBoULmFnZW50LnYxLkFnZW50RXZlbnQwARJECglDYW5jZWxSdW4SGi5hZ2VudC52MS5DYW5jZWxSdW5SZXF1ZXN0GhsuYWdlbnQudjEuQ2FuY2VsUnVuUmVzcG9uc2USYgoTUmVzb2x2ZVRvb2xBcHByb3ZhbBIkLmFnZW50LnYxLlJlc29sdmVUb29sQXBwcm92YWxSZXF1ZXN0GiUuYWdlbnQudjEuUmVzb2x2ZVRvb2xBcHByb3ZhbFJlc3BvbnNlEkQKCUxpc3RUb29scxIaLmFnZW50LnYxLkxpc3RUb29sc1JlcXVlc3QaGy5hZ2VudC52MS5MaXN0VG9vbHNSZXNwb25zZRJZChBSZWdpc3Rlckh0dHBUb29sEiEuYWdlbnQudjEuUmVnaXN0ZXJIdHRwVG9vbFJlcXVlc3QaIi5hZ2VudC52MS5SZWdpc3Rlckh0dHBUb29sUmVzcG9uc2USVgoPVXBzZXJ0TWNwU2VydmVyEiAuYWdlbnQudjEuVXBzZXJ0TWNwU2VydmVyUmVxdWVzdBohLmFnZW50LnYxLlVwc2VydE1jcFNlcnZlclJlc3BvbnNlElAKDVVwc2VydENyb25Kb2ISHi5hZ2VudC52MS5VcHNlcnRDcm9uSm9iUmVxdWVzdBofLmFnZW50LnYxLlVwc2VydENyb25Kb2JSZXNwb25zZRJHCgpHZXRDcm9uSm9iEhsuYWdlbnQudjEuR2V0Q3JvbkpvYlJlcXVlc3QaHC5hZ2VudC52MS5HZXRDcm9uSm9iUmVzcG9uc2USTQoMTGlzdENyb25Kb2JzEh0uYWdlbnQudjEuTGlzdENyb25Kb2JzUmVxdWVzdBoeLmFnZW50LnYxLkxpc3RDcm9uSm9ic1Jlc3BvbnNlElAKDURlbGV0ZUNyb25Kb2ISHi5hZ2VudC52MS5EZWxldGVDcm9uSm9iUmVxdWVzdBofLmFnZW50LnYxLkRlbGV0ZUNyb25Kb2JSZXNwb25zZRJcChFTZXRDcm9uSm9iRW5hYmxlZBIiLmFnZW50LnYxLlNldENyb25Kb2JFbmFibGVkUmVxdWVzdBojLmFnZW50LnYxLlNldENyb25Kb2JFbmFibGVkUmVzcG9uc2VCAlABYgZwcm90bzM");
 
 /**
  * @generated from message agent.v1.CreateSessionRequest
@@ -921,6 +921,370 @@ export const SubagentCompletedEventSchema: GenMessage<SubagentCompletedEvent> = 
   messageDesc(file_agent_v1_agent, 29);
 
 /**
+ * @generated from message agent.v1.CronJob
+ */
+export type CronJob = Message<"agent.v1.CronJob"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: string cron = 2;
+   */
+  cron: string;
+
+  /**
+   * @generated from field: string timezone = 3;
+   */
+  timezone: string;
+
+  /**
+   * @generated from field: string message = 4;
+   */
+  message: string;
+
+  /**
+   * @generated from field: string system_prompt = 5;
+   */
+  systemPrompt: string;
+
+  /**
+   * sticky | ephemeral
+   *
+   * @generated from field: string session_mode = 6;
+   */
+  sessionMode: string;
+
+  /**
+   * @generated from field: string session_id = 7;
+   */
+  sessionId: string;
+
+  /**
+   * @generated from field: string model = 8;
+   */
+  model: string;
+
+  /**
+   * @generated from field: int32 max_steps = 9;
+   */
+  maxSteps: number;
+
+  /**
+   * @generated from field: int32 timeout_ms = 10;
+   */
+  timeoutMs: number;
+
+  /**
+   * @generated from field: bool enabled = 11;
+   */
+  enabled: boolean;
+
+  /**
+   * @generated from field: bool auto_approve = 12;
+   */
+  autoApprove: boolean;
+
+  /**
+   * skip (default)
+   *
+   * @generated from field: string overlap = 13;
+   */
+  overlap: string;
+
+  /**
+   * file | api
+   *
+   * @generated from field: string source = 14;
+   */
+  source: string;
+
+  /**
+   * @generated from field: int64 last_run_at_ms = 15;
+   */
+  lastRunAtMs: bigint;
+
+  /**
+   * ok | error | skipped | ""
+   *
+   * @generated from field: string last_status = 16;
+   */
+  lastStatus: string;
+
+  /**
+   * @generated from field: string last_error = 17;
+   */
+  lastError: string;
+
+  /**
+   * @generated from field: string last_run_id = 18;
+   */
+  lastRunId: string;
+
+  /**
+   * @generated from field: int64 next_run_at_ms = 19;
+   */
+  nextRunAtMs: bigint;
+
+  /**
+   * @generated from field: int64 created_at_ms = 20;
+   */
+  createdAtMs: bigint;
+
+  /**
+   * @generated from field: int64 updated_at_ms = 21;
+   */
+  updatedAtMs: bigint;
+};
+
+/**
+ * Describes the message agent.v1.CronJob.
+ * Use `create(CronJobSchema)` to create a new message.
+ */
+export const CronJobSchema: GenMessage<CronJob> = /*@__PURE__*/
+  messageDesc(file_agent_v1_agent, 30);
+
+/**
+ * @generated from message agent.v1.UpsertCronJobRequest
+ */
+export type UpsertCronJobRequest = Message<"agent.v1.UpsertCronJobRequest"> & {
+  /**
+   * Empty id => server generates one.
+   *
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: string cron = 2;
+   */
+  cron: string;
+
+  /**
+   * @generated from field: string timezone = 3;
+   */
+  timezone: string;
+
+  /**
+   * @generated from field: string message = 4;
+   */
+  message: string;
+
+  /**
+   * @generated from field: string system_prompt = 5;
+   */
+  systemPrompt: string;
+
+  /**
+   * sticky | ephemeral; empty => sticky
+   *
+   * @generated from field: string session_mode = 6;
+   */
+  sessionMode: string;
+
+  /**
+   * @generated from field: string session_id = 7;
+   */
+  sessionId: string;
+
+  /**
+   * @generated from field: string model = 8;
+   */
+  model: string;
+
+  /**
+   * @generated from field: int32 max_steps = 9;
+   */
+  maxSteps: number;
+
+  /**
+   * @generated from field: int32 timeout_ms = 10;
+   */
+  timeoutMs: number;
+
+  /**
+   * unset => keep existing / default true on create
+   *
+   * @generated from field: optional bool enabled = 11;
+   */
+  enabled?: boolean | undefined;
+
+  /**
+   * @generated from field: optional bool auto_approve = 12;
+   */
+  autoApprove?: boolean | undefined;
+
+  /**
+   * skip; empty => skip
+   *
+   * @generated from field: string overlap = 13;
+   */
+  overlap: string;
+};
+
+/**
+ * Describes the message agent.v1.UpsertCronJobRequest.
+ * Use `create(UpsertCronJobRequestSchema)` to create a new message.
+ */
+export const UpsertCronJobRequestSchema: GenMessage<UpsertCronJobRequest> = /*@__PURE__*/
+  messageDesc(file_agent_v1_agent, 31);
+
+/**
+ * @generated from message agent.v1.UpsertCronJobResponse
+ */
+export type UpsertCronJobResponse = Message<"agent.v1.UpsertCronJobResponse"> & {
+  /**
+   * @generated from field: agent.v1.CronJob job = 1;
+   */
+  job?: CronJob | undefined;
+};
+
+/**
+ * Describes the message agent.v1.UpsertCronJobResponse.
+ * Use `create(UpsertCronJobResponseSchema)` to create a new message.
+ */
+export const UpsertCronJobResponseSchema: GenMessage<UpsertCronJobResponse> = /*@__PURE__*/
+  messageDesc(file_agent_v1_agent, 32);
+
+/**
+ * @generated from message agent.v1.GetCronJobRequest
+ */
+export type GetCronJobRequest = Message<"agent.v1.GetCronJobRequest"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+};
+
+/**
+ * Describes the message agent.v1.GetCronJobRequest.
+ * Use `create(GetCronJobRequestSchema)` to create a new message.
+ */
+export const GetCronJobRequestSchema: GenMessage<GetCronJobRequest> = /*@__PURE__*/
+  messageDesc(file_agent_v1_agent, 33);
+
+/**
+ * @generated from message agent.v1.GetCronJobResponse
+ */
+export type GetCronJobResponse = Message<"agent.v1.GetCronJobResponse"> & {
+  /**
+   * @generated from field: agent.v1.CronJob job = 1;
+   */
+  job?: CronJob | undefined;
+};
+
+/**
+ * Describes the message agent.v1.GetCronJobResponse.
+ * Use `create(GetCronJobResponseSchema)` to create a new message.
+ */
+export const GetCronJobResponseSchema: GenMessage<GetCronJobResponse> = /*@__PURE__*/
+  messageDesc(file_agent_v1_agent, 34);
+
+/**
+ * @generated from message agent.v1.ListCronJobsRequest
+ */
+export type ListCronJobsRequest = Message<"agent.v1.ListCronJobsRequest"> & {
+};
+
+/**
+ * Describes the message agent.v1.ListCronJobsRequest.
+ * Use `create(ListCronJobsRequestSchema)` to create a new message.
+ */
+export const ListCronJobsRequestSchema: GenMessage<ListCronJobsRequest> = /*@__PURE__*/
+  messageDesc(file_agent_v1_agent, 35);
+
+/**
+ * @generated from message agent.v1.ListCronJobsResponse
+ */
+export type ListCronJobsResponse = Message<"agent.v1.ListCronJobsResponse"> & {
+  /**
+   * @generated from field: repeated agent.v1.CronJob jobs = 1;
+   */
+  jobs: CronJob[];
+};
+
+/**
+ * Describes the message agent.v1.ListCronJobsResponse.
+ * Use `create(ListCronJobsResponseSchema)` to create a new message.
+ */
+export const ListCronJobsResponseSchema: GenMessage<ListCronJobsResponse> = /*@__PURE__*/
+  messageDesc(file_agent_v1_agent, 36);
+
+/**
+ * @generated from message agent.v1.DeleteCronJobRequest
+ */
+export type DeleteCronJobRequest = Message<"agent.v1.DeleteCronJobRequest"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+};
+
+/**
+ * Describes the message agent.v1.DeleteCronJobRequest.
+ * Use `create(DeleteCronJobRequestSchema)` to create a new message.
+ */
+export const DeleteCronJobRequestSchema: GenMessage<DeleteCronJobRequest> = /*@__PURE__*/
+  messageDesc(file_agent_v1_agent, 37);
+
+/**
+ * @generated from message agent.v1.DeleteCronJobResponse
+ */
+export type DeleteCronJobResponse = Message<"agent.v1.DeleteCronJobResponse"> & {
+  /**
+   * @generated from field: bool deleted = 1;
+   */
+  deleted: boolean;
+};
+
+/**
+ * Describes the message agent.v1.DeleteCronJobResponse.
+ * Use `create(DeleteCronJobResponseSchema)` to create a new message.
+ */
+export const DeleteCronJobResponseSchema: GenMessage<DeleteCronJobResponse> = /*@__PURE__*/
+  messageDesc(file_agent_v1_agent, 38);
+
+/**
+ * @generated from message agent.v1.SetCronJobEnabledRequest
+ */
+export type SetCronJobEnabledRequest = Message<"agent.v1.SetCronJobEnabledRequest"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: bool enabled = 2;
+   */
+  enabled: boolean;
+};
+
+/**
+ * Describes the message agent.v1.SetCronJobEnabledRequest.
+ * Use `create(SetCronJobEnabledRequestSchema)` to create a new message.
+ */
+export const SetCronJobEnabledRequestSchema: GenMessage<SetCronJobEnabledRequest> = /*@__PURE__*/
+  messageDesc(file_agent_v1_agent, 39);
+
+/**
+ * @generated from message agent.v1.SetCronJobEnabledResponse
+ */
+export type SetCronJobEnabledResponse = Message<"agent.v1.SetCronJobEnabledResponse"> & {
+  /**
+   * @generated from field: agent.v1.CronJob job = 1;
+   */
+  job?: CronJob | undefined;
+};
+
+/**
+ * Describes the message agent.v1.SetCronJobEnabledResponse.
+ * Use `create(SetCronJobEnabledResponseSchema)` to create a new message.
+ */
+export const SetCronJobEnabledResponseSchema: GenMessage<SetCronJobEnabledResponse> = /*@__PURE__*/
+  messageDesc(file_agent_v1_agent, 40);
+
+/**
  * AgentService is the public surface for thin multi-language clients.
  *
  * @generated from service agent.v1.AgentService
@@ -989,6 +1353,46 @@ export const AgentService: GenService<{
     methodKind: "unary";
     input: typeof UpsertMcpServerRequestSchema;
     output: typeof UpsertMcpServerResponseSchema;
+  },
+  /**
+   * @generated from rpc agent.v1.AgentService.UpsertCronJob
+   */
+  upsertCronJob: {
+    methodKind: "unary";
+    input: typeof UpsertCronJobRequestSchema;
+    output: typeof UpsertCronJobResponseSchema;
+  },
+  /**
+   * @generated from rpc agent.v1.AgentService.GetCronJob
+   */
+  getCronJob: {
+    methodKind: "unary";
+    input: typeof GetCronJobRequestSchema;
+    output: typeof GetCronJobResponseSchema;
+  },
+  /**
+   * @generated from rpc agent.v1.AgentService.ListCronJobs
+   */
+  listCronJobs: {
+    methodKind: "unary";
+    input: typeof ListCronJobsRequestSchema;
+    output: typeof ListCronJobsResponseSchema;
+  },
+  /**
+   * @generated from rpc agent.v1.AgentService.DeleteCronJob
+   */
+  deleteCronJob: {
+    methodKind: "unary";
+    input: typeof DeleteCronJobRequestSchema;
+    output: typeof DeleteCronJobResponseSchema;
+  },
+  /**
+   * @generated from rpc agent.v1.AgentService.SetCronJobEnabled
+   */
+  setCronJobEnabled: {
+    methodKind: "unary";
+    input: typeof SetCronJobEnabledRequestSchema;
+    output: typeof SetCronJobEnabledResponseSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_agent_v1_agent, 0);

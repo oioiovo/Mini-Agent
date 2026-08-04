@@ -22,7 +22,7 @@
     "dev": "tsx watch src/cli.ts serve",
     "start": "node dist/cli.js serve",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "node --import tsx --test src/paths.test.ts src/cli.smoke.test.ts"
+    "test": "node --import tsx --test src/paths.test.ts src/cli.smoke.test.ts src/cron.smoke.test.ts"
   },
   "dependencies": {
     "@bufbuild/protobuf": "^2.2.5",

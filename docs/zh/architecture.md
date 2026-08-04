@@ -44,8 +44,19 @@ flowchart LR
 - `ListTools`
 - `RegisterHttpTool`
 - `UpsertMcpServer`
+- `UpsertCronJob` / `GetCronJob` / `ListCronJobs` / `DeleteCronJob` / `SetCronJobEnabled`
 
 生成：`pnpm generate` → `packages/shared/src/gen`
+
+## Cron Scheduler
+
+服务端进程内调度：按 cron 表达式直接调用 `agent.run`（不经假 HTTP）。
+
+- 持久化：`MINI_AGENT_DATA_DIR/cron.sqlite`
+- 配置文件：默认加载仓库根 `cron.jobs.yaml`（或 `MINI_AGENT_CRON_FILE`）；`source=file` 的任务在启动时与文件同步，`source=api` 不受文件删除影响
+- 动态管理：上述 Cron RPC；观测字段 `last_*` / `next_run_at_ms`
+- 无头审批：job 级 `auto_approve`，或全局 `MINI_AGENT_AUTO_APPROVE`
+- 重叠策略：默认 `skip`（上一次未结束则跳过）
 
 ## Memory 分层
 

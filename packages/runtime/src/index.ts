@@ -82,4 +82,28 @@ export type { CreateAgentOptions, MiniAgent } from "./create-agent.js";
 export { SubagentRunner, DEFAULT_SUBAGENT_TOOLS, getSubagentDepth } from "./agent/subagent.js";
 export type { SubagentOptions, RunSubagentResult } from "./agent/subagent.js";
 
+export {
+  assertValidCron,
+  computeNextRunAtMs,
+  normalizeOverlap,
+  normalizeSessionMode,
+} from "./cron/types.js";
+export type {
+  CronJobRecord,
+  CronJobSource,
+  CronJobUpsertInput,
+  CronLastStatus,
+  CronOverlap,
+  CronSessionMode,
+} from "./cron/types.js";
+export { SqliteCronJobStore } from "./cron/store.js";
+export type { CronJobStore } from "./cron/store.js";
+export { CronScheduler } from "./cron/scheduler.js";
+export type { CronSchedulerAgent, CronSchedulerOptions } from "./cron/scheduler.js";
+export {
+  loadCronConfigFile,
+  parseCronConfigText,
+  syncCronJobsFromConfig,
+} from "./cron/load-config.js";
+
 export { consoleLogger } from "./utils.js";

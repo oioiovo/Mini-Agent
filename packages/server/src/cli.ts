@@ -54,9 +54,15 @@ async function main() {
 
   const workspaceRoot = resolveFromRepo(repoRoot, process.env.MINI_AGENT_WORKSPACE, "workspace");
   const dataDir = resolveFromRepo(repoRoot, process.env.MINI_AGENT_DATA_DIR, "data");
+  const cronFileEnv = process.env.MINI_AGENT_CRON_FILE;
+  const cronFile = cronFileEnv
+    ? resolveFromRepo(repoRoot, cronFileEnv, cronFileEnv)
+    : resolve(repoRoot, "cron.jobs.yaml");
 
   const server = await createMiniAgentServer({
     port,
+    cronFile: existsSync(cronFile) ? cronFile : undefined,
+    cronSqlitePath: resolve(dataDir, "cron.sqlite"),
     agentOptions: {
       workspaceRoot,
       sqlitePath: resolve(dataDir, "sessions.sqlite"),
@@ -74,6 +80,13 @@ async function main() {
       .map((t) => t.name)
       .join(",")}`,
   );
+  if (server.cronStore) {
+    const jobs = server.cronStore.list();
+    console.log(
+      `Cron: enabled jobs=${jobs.filter((j) => j.enabled).length}/${jobs.length}` +
+        (existsSync(cronFile) ? ` file=${cronFile}` : " (no cron.jobs.yaml)"),
+    );
+  }
 
   const shutdown = async () => {
     await server.close();

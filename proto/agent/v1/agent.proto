@@ -14,6 +14,11 @@ service AgentService {
   rpc ListTools(ListToolsRequest) returns (ListToolsResponse);
   rpc RegisterHttpTool(RegisterHttpToolRequest) returns (RegisterHttpToolResponse);
   rpc UpsertMcpServer(UpsertMcpServerRequest) returns (UpsertMcpServerResponse);
+  rpc UpsertCronJob(UpsertCronJobRequest) returns (UpsertCronJobResponse);
+  rpc GetCronJob(GetCronJobRequest) returns (GetCronJobResponse);
+  rpc ListCronJobs(ListCronJobsRequest) returns (ListCronJobsResponse);
+  rpc DeleteCronJob(DeleteCronJobRequest) returns (DeleteCronJobResponse);
+  rpc SetCronJobEnabled(SetCronJobEnabledRequest) returns (SetCronJobEnabledResponse);
 }
 
 message CreateSessionRequest {
@@ -216,4 +221,87 @@ message SubagentCompletedEvent {
   string child_run_id = 2;
   string final_text = 3;
   bool is_error = 4;
+}
+
+message CronJob {
+  string id = 1;
+  string cron = 2;
+  string timezone = 3;
+  string message = 4;
+  string system_prompt = 5;
+  // sticky | ephemeral
+  string session_mode = 6;
+  string session_id = 7;
+  string model = 8;
+  int32 max_steps = 9;
+  int32 timeout_ms = 10;
+  bool enabled = 11;
+  bool auto_approve = 12;
+  // skip (default)
+  string overlap = 13;
+  // file | api
+  string source = 14;
+  int64 last_run_at_ms = 15;
+  // ok | error | skipped | ""
+  string last_status = 16;
+  string last_error = 17;
+  string last_run_id = 18;
+  int64 next_run_at_ms = 19;
+  int64 created_at_ms = 20;
+  int64 updated_at_ms = 21;
+}
+
+message UpsertCronJobRequest {
+  // Empty id => server generates one.
+  string id = 1;
+  string cron = 2;
+  string timezone = 3;
+  string message = 4;
+  string system_prompt = 5;
+  // sticky | ephemeral; empty => sticky
+  string session_mode = 6;
+  string session_id = 7;
+  string model = 8;
+  int32 max_steps = 9;
+  int32 timeout_ms = 10;
+  // unset => keep existing / default true on create
+  optional bool enabled = 11;
+  optional bool auto_approve = 12;
+  // skip; empty => skip
+  string overlap = 13;
+}
+
+message UpsertCronJobResponse {
+  CronJob job = 1;
+}
+
+message GetCronJobRequest {
+  string id = 1;
+}
+
+message GetCronJobResponse {
+  CronJob job = 1;
+}
+
+message ListCronJobsRequest {}
+
+message ListCronJobsResponse {
+  repeated CronJob jobs = 1;
+}
+
+message DeleteCronJobRequest {
+  string id = 1;
+}
+
+message DeleteCronJobResponse {
+  bool deleted = 1;
+}
+
+message SetCronJobEnabledRequest {
+  string id = 1;
+  bool enabled = 2;
+}
+
+message SetCronJobEnabledResponse {
+  CronJob job = 1;
 }

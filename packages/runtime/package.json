@@ -11,15 +11,19 @@
       "import": "./dist/index.js"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "node --import tsx --test src/tools/policy.test.ts src/tools/todo-store.test.ts src/tools/todo-builtins.test.ts src/agent/subagent.test.ts"
+    "test": "node --import tsx --test src/tools/policy.test.ts src/tools/todo-store.test.ts src/tools/todo-builtins.test.ts src/agent/subagent.test.ts src/cron/cron.test.ts"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.1",
+    "croner": "^10.0.1",
     "nanoid": "^5.1.5",
+    "yaml": "^2.7.0",
     "zod": "^3.24.2"
   },
   "devDependencies": {
