@@ -8,7 +8,7 @@ A TypeScript single-core Agent Runtime that exposes a streaming API over Connect
 
 - Agent loop (multi-step tool calls, cancellation, timeouts, max steps)
 - Local / HTTP / MCP tools (including `todo_write` / `todo_read`, async read-only `run_subagent`)
-- Session (SQLite by default, in-memory available) + Memory (bag-of-words retrieval / summarization)
+- Session (SQLite by default, in-memory available) + Durable File Memory (`MEMORY.md` + Markdown entries; auto-extract + `memory_*` tools)
 - OpenAI-compatible LLM Provider
 - Connect HTTP API + API Key auth + basic rate limiting
 - `@mini-agent/client` (Connect thin client)

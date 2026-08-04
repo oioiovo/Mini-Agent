@@ -46,9 +46,10 @@ pnpm dev
 
 健康检查：`GET http://127.0.0.1:8787/healthz`
 
-默认内置工具：`now`、`calculator`、`todo_write`、`todo_read`、`list_dir`、`read_file`、`write_file`、`http_request`、`run_subagent`、`compact`。
+默认内置工具：`now`、`calculator`、`todo_write`、`todo_read`、`list_dir`、`read_file`、`write_file`、`http_request`、`run_subagent`、`compact`、`memory_write`、`memory_read`。
 其中 `write_file` / `http_request` 默认需要审批（除非 `MINI_AGENT_AUTO_APPROVE=true`）。
 `todo_write` / `todo_read` 按 session 将任务列表存到 workspace `.mini-agent/todos/<sessionId>.json`，免审批。
+`memory_write` / `memory_read` 读写 durable 记忆目录（默认 `workspace/.mini-agent/memory/`，可用 `MINI_AGENT_MEMORY_DIR` 覆盖），免审批；run 结束还会自动 LLM 提取。详见[架构 · Memory](./architecture.md#memory-分层)。
 `run_subagent` 启动只读隔离的异步子 Agent（独立 session）；父 run 流会收到 `subagentStarted` / `subagentProgress` / `subagentCompleted` 事件，工具结果返回子 Agent 最终文本。子 Agent 默认工具：`now`、`calculator`、`list_dir`、`read_file`、`todo_*`（不可再嵌套）。
 
 工具执行规则：

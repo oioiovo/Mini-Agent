@@ -17,7 +17,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "node --import tsx --test src/tools/policy.test.ts src/tools/todo-store.test.ts src/tools/todo-builtins.test.ts src/agent/subagent.test.ts src/cron/cron.test.ts src/context/compact.test.ts"
+    "test": "node --import tsx --test src/tools/policy.test.ts src/tools/todo-store.test.ts src/tools/todo-builtins.test.ts src/agent/subagent.test.ts src/cron/cron.test.ts src/context/compact.test.ts src/memory/files.test.ts src/memory/select.test.ts src/memory/extract.test.ts src/memory/file-memory.integration.test.ts"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.1",

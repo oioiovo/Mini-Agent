@@ -3,6 +3,8 @@ import { SubagentRunner, type SubagentOptions } from "./agent/subagent.js";
 import type { CompactStepResult } from "./context/compact.js";
 import { createCompactTool } from "./context/compact-tool.js";
 import type { CompactOptions } from "./context/estimate.js";
+import { FileMemoryStore } from "./memory/file-store.js";
+import { createMemoryTools } from "./memory/memory-tools.js";
 import { InMemoryMemoryStore } from "./memory/store.js";
 import type { MemoryStore } from "./types.js";
 import { McpManager, type McpServerConfig } from "./mcp/manager.js";
@@ -41,8 +43,12 @@ export interface CreateAgentOptions {
   compact?: CompactOptions;
   mcp?: { servers?: McpServerConfig[] };
   memory?: {
-    shortTerm?: "session" | "memory";
-    longTerm?: "none" | "vector";
+    enabled?: boolean;
+    root?: string;
+    consolidateThreshold?: number;
+    maxSelect?: number;
+    autoExtract?: boolean;
+    /** Escape hatch for tests; skips FileMemoryStore when set. */
     store?: MemoryStore;
   };
   sessions?: SessionStore;
@@ -61,6 +67,7 @@ export interface MiniAgent {
   tools: ToolRegistry;
   sessions: SessionStore;
   memory: MemoryStore;
+  durableMemory?: FileMemoryStore;
   mcp: McpManager;
   llm: LlmClient;
   approvals: ApprovalBroker;
@@ -137,9 +144,26 @@ export async function createAgent(options: CreateAgentOptions = {}): Promise<Min
       ? new SqliteSessionStore(options.sqlitePath ?? "./data/sessions.sqlite")
       : new InMemorySessionStore());
 
-  const memory = options.memory?.store ?? new InMemoryMemoryStore();
+  const durableMemory =
+    options.memory?.store != null
+      ? undefined
+      : new FileMemoryStore({
+          enabled: options.memory?.enabled,
+          root: options.memory?.root,
+          workspaceRoot,
+          consolidateThreshold: options.memory?.consolidateThreshold,
+          maxSelect: options.memory?.maxSelect,
+          autoExtract: options.memory?.autoExtract,
+        });
+  const memory = options.memory?.store ?? durableMemory ?? new InMemoryMemoryStore();
   const policy = new ToolPolicy(options.policy);
   const approvals = new ApprovalBroker();
+
+  if (options.includeBuiltinTools && durableMemory) {
+    for (const tool of createMemoryTools(durableMemory)) {
+      tools.upsert(tool);
+    }
+  }
 
   const mcp = new McpManager(tools, logger);
   for (const server of options.mcp?.servers ?? []) {
@@ -151,6 +175,7 @@ export async function createAgent(options: CreateAgentOptions = {}): Promise<Min
     tools,
     sessions,
     memory,
+    durableMemory,
     logger,
     defaultModel,
     maxSteps: options.maxSteps,
@@ -183,6 +208,7 @@ export async function createAgent(options: CreateAgentOptions = {}): Promise<Min
     tools,
     sessions,
     memory,
+    durableMemory,
     mcp,
     llm,
     approvals,

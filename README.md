@@ -8,7 +8,7 @@ TypeScript 单核心 Agent Runtime，通过 Connect over HTTP 对外提供流式
 
 - Agent loop（多步工具调用、取消、超时、最大步数）
 - Local / HTTP / MCP 工具（含 `todo_write` / `todo_read`、异步只读 `run_subagent`）
-- Session（默认 SQLite，亦可内存）+ Memory（词袋检索 / 摘要）
+- Session（默认 SQLite，亦可内存）+ Durable File Memory（`MEMORY.md` + Markdown；自动提取 + `memory_*` 工具）
 - OpenAI-compatible LLM Provider
 - Connect HTTP API + API Key 鉴权 + 基础限流
 - `@mini-agent/client`（Connect 薄客户端）

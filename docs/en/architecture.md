@@ -61,11 +61,24 @@ In-process scheduler on the server: fires cron expressions by calling `agent.run
 
 ## Memory layers
 
+Aligned with [s09 Memory](https://learn.shareai.run/zh/s09/) / CC memdir: compaction drops detail, so durable facts live in Markdown files across compact and sessions.
+
 | Layer | Responsibility | Default |
 |-------|----------------|---------|
 | Working / Session | Multi-turn messages | Server default SQLite (`node:sqlite`, `MINI_AGENT_DATA_DIR`); in-memory also available |
-| Long-term | Cross-session retrieval | In-memory bag-of-words token overlap (not embeddings / a vector DB) |
-| Context Compact | Context compression | Four-layer pipeline (budget → snip → micro → LLM); see below |
+| Durable File Memory | Cross-session durable memory | `workspace/.mini-agent/memory/` (`MEMORY.md` index + per-entry `.md`); override with `CreateAgentOptions.memory.root` or `MINI_AGENT_MEMORY_DIR` |
+| Context Compact | Context compression | Four-layer pipeline (budget → snip → micro → LLM); **memory files are not compacted** |
+
+### Durable File Memory behavior
+
+- **Index injection**: each `run` appends `MEMORY.md` to the effective system prompt for that run only (does not mutate `session.systemPrompt`)
+- **Relevant bodies**: LLM side-query selects up to 5 files (keyword fallback on name+description), prefixed onto the user turn; emits `memory.hit`
+- **Auto extract**: when a run ends with no tool_calls, an LLM extract writes new files; failures are logged only
+- **Consolidate**: when file count ≥ threshold (default 10), LLM dedupes/merges (teaching-scale gate; no CC four-layer Dream)
+- **Tools**: `memory_write` / `memory_read` (`risk=read`, disk writes skip approval)
+- **Escape hatch**: `memory.store` injects a custom `MemoryStore` (skips file memory); bag-of-words `InMemoryMemoryStore` remains for tests
+
+Non-goals: embeddings, team memory / multi-host locks, forked agents.
 
 ## Context Compact
 

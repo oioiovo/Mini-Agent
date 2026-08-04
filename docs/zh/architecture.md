@@ -61,11 +61,24 @@ flowchart LR
 
 ## Memory 分层
 
+对齐 [s09 Memory](https://learn.shareai.run/zh/s09/) / CC memdir 思路：压缩会丢细节，跨 compact / 跨 session 的事实落在 Markdown 文件里。
+
 | 层级 | 职责 | 默认实现 |
 |------|------|----------|
 | Working / Session | 多轮消息 | 服务端默认 SQLite（`node:sqlite`，`MINI_AGENT_DATA_DIR`）；亦可内存 |
-| Long-term | 跨会话检索 | 内存词袋 token overlap 打分（非 embedding / 向量库） |
-| Context Compact | 上下文压缩 | 四层管线（budget → snip → micro → LLM）；见下节 |
+| Durable File Memory | 跨会话持久记忆 | `workspace/.mini-agent/memory/`（`MEMORY.md` 索引 + 单条 `.md`）；可用 `CreateAgentOptions.memory.root` 或 `MINI_AGENT_MEMORY_DIR` 覆盖 |
+| Context Compact | 上下文压缩 | 四层管线（budget → snip → micro → LLM）；**记忆文件不参与 compact** |
+
+### Durable File Memory 行为
+
+- **索引注入**：每次 `run` 将 `MEMORY.md` 拼进本轮有效 system（不写回 `session.systemPrompt`）
+- **相关正文**：LLM side-query 最多选 5 个文件（失败则关键词匹配 name+description），作为本轮 user 前缀；发 `memory.hit`
+- **自动提取**：run 以无 tool_calls 正常结束时 LLM 提取新记忆写盘；失败只打日志
+- **整理**：记忆文件数 ≥ 阈值（默认 10）时 LLM 去重合并（教学版门控，无 CC 四层 Dream）
+- **工具**：`memory_write` / `memory_read`（`risk=read`，写盘免审批）
+- **逃生舱**：`memory.store` 可注入自定义 `MemoryStore`（跳过文件记忆）；旧词袋 `InMemoryMemoryStore` 仍保留供测试
+
+简化点：无 embedding、无 Team memory / 多机锁、无 forked agent。
 
 ## Context Compact
 

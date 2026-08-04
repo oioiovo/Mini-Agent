@@ -22,12 +22,14 @@ import { AsyncEventQueue } from "../tools/event-queue.js";
 import type { ToolPolicy, ToolPolicyResult } from "../tools/policy.js";
 import type { ToolRegistry } from "../tools/registry.js";
 import { consoleLogger, nowMs, toErrorMessage } from "../utils.js";
+import { FileMemoryStore } from "../memory/file-store.js";
 
 export interface AgentLoopOptions {
   llm: LlmClient;
   tools: ToolRegistry;
   sessions: SessionStore;
   memory?: MemoryStore;
+  durableMemory?: FileMemoryStore;
   logger?: Logger;
   defaultModel: string;
   maxSteps?: number;
@@ -149,7 +151,39 @@ export class AgentLoop {
         timestampMs: nowMs(),
       };
 
-      if (this.options.memory) {
+      let memoryIndexBlock = "";
+      let memoryUserPrefix = "";
+      const durable = this.options.durableMemory;
+
+      if (durable?.enabled) {
+        try {
+          const prepared = await durable.prepareForRun({
+            sessionId,
+            query: input.message,
+            llm: this.options.llm,
+            model,
+            abortSignal: controller.signal,
+          });
+          memoryIndexBlock = prepared.indexBlock;
+          memoryUserPrefix = prepared.userPrefix;
+          for (const hit of prepared.hits) {
+            yield {
+              type: "memory.hit",
+              ...emitBase,
+              memoryId: hit.id,
+              content: hit.content,
+              score: hit.score,
+              timestampMs: nowMs(),
+            };
+          }
+        } catch (err) {
+          this.logger.warn("memory prepare failed", {
+            runId,
+            sessionId,
+            error: toErrorMessage(err),
+          });
+        }
+      } else if (this.options.memory) {
         const hits = await this.options.memory.search(sessionId, input.message, 3);
         for (const hit of hits) {
           yield {
@@ -166,6 +200,7 @@ export class AgentLoop {
       const userMessage: ChatMessage = { role: "user", content: input.message };
       await this.options.sessions.appendMessages(sessionId, [userMessage]);
       await this.options.memory?.append(sessionId, [userMessage]);
+      const turnUserIndex = (await this.options.sessions.get(sessionId))!.messages.length - 1;
 
       let steps = 0;
       let finalText = "";
@@ -226,10 +261,20 @@ export class AgentLoop {
         }
 
         if (!latest) throw new Error(`Session not found: ${sessionId}`);
-        const systemPrompt = latest.systemPrompt || this.defaultSystemPrompt;
+        const systemPrompt =
+          (latest.systemPrompt || this.defaultSystemPrompt) + memoryIndexBlock;
         const messages: ChatMessage[] = [
           { role: "system", content: systemPrompt },
-          ...latest.messages,
+          ...latest.messages.map((m, index) => {
+            if (
+              memoryUserPrefix &&
+              index === turnUserIndex &&
+              m.role === "user"
+            ) {
+              return { ...m, content: memoryUserPrefix + m.content };
+            }
+            return m;
+          }),
         ];
 
         const toolDefs = this.options.tools.list();
@@ -282,7 +327,16 @@ export class AgentLoop {
             messages.length = 0;
             messages.push(
               { role: "system", content: systemPrompt },
-              ...latest.messages,
+              ...latest.messages.map((m, index) => {
+                if (
+                  memoryUserPrefix &&
+                  index === turnUserIndex &&
+                  m.role === "user"
+                ) {
+                  return { ...m, content: memoryUserPrefix + m.content };
+                }
+                return m;
+              }),
             );
           }
         }
@@ -303,6 +357,23 @@ export class AgentLoop {
 
         const toolCalls = assistant.toolCalls ?? [];
         if (toolCalls.length === 0 || response.finishReason === "stop") {
+          if (durable?.enabled) {
+            try {
+              const sessionNow = await this.options.sessions.get(sessionId);
+              await durable.extractAfterRun({
+                messages: sessionNow?.messages ?? [],
+                llm: this.options.llm,
+                model,
+                abortSignal: controller.signal,
+              });
+            } catch (err) {
+              this.logger.warn("memory extract failed", {
+                runId,
+                sessionId,
+                error: toErrorMessage(err),
+              });
+            }
+          }
           yield {
             type: "run.completed",
             ...emitBase,

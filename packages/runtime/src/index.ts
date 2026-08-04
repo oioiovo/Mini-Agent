@@ -70,6 +70,29 @@ export type { SessionStore } from "./session/memory-store.js";
 export { SqliteSessionStore } from "./session/sqlite-store.js";
 
 export { InMemoryMemoryStore, CompositeMemoryStore } from "./memory/store.js";
+export {
+  resolveMemoryRoot,
+  ensureMemoryRoot,
+  listMemoryFiles,
+  writeMemoryFile,
+  readMemoryFile,
+  readMemoryIndex,
+  rebuildMemoryIndex,
+  formatMemoryIndexBlock,
+  clipMemoryBody,
+} from "./memory/files.js";
+export type { MemoryFile, MemoryType } from "./memory/files.js";
+export {
+  selectRelevantMemories,
+  selectMemoriesByKeyword,
+  loadMemoryBodies,
+  formatRelevantMemoriesBlock,
+} from "./memory/select.js";
+export { extractMemories } from "./memory/extract.js";
+export { consolidateMemories } from "./memory/consolidate.js";
+export { FileMemoryStore } from "./memory/file-store.js";
+export type { DurableMemoryOptions, PreparedMemoryContext } from "./memory/file-store.js";
+export { createMemoryTools } from "./memory/memory-tools.js";
 
 export { McpManager } from "./mcp/manager.js";
 export type { McpServerConfig } from "./mcp/manager.js";
