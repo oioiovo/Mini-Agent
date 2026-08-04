@@ -29,7 +29,7 @@ flowchart LR
 3. 组装 system + history，调用 LLM
 4. 若有 tool_calls：可能先发 `message.delta`，再 `tool.started` →（可选 `tool.approval_required` / `tool.result_delta` / `subagent.*`）→ `tool.completed`，写回消息后继续
 5. 若无 tool_calls：`message.delta` + `run.completed`
-6. 异常或取消：`run.error`
+6. 异常或取消：`run.error`；恢复过程可发 `run.recovery`
 
 对外 Connect 流事件使用 camelCase `payload.case`（如 `textDelta`、`toolCall`、`toolApprovalRequired`、`toolResultDelta`、`subagentStarted`）；上表为 runtime 内部点分命名。
 
@@ -94,6 +94,20 @@ flowchart LR
 同一次 run 内 context 未变时，`SystemPromptCache` 复用已组装字符串（仅避免重复拼接，不是 API prompt cache）。相关记忆正文仍作为本轮 user 前缀注入，不进 system。
 
 相对 CC 的简化：无 Skills / 多 section 风格包 / `SYSTEM_PROMPT_DYNAMIC_BOUNDARY`。
+
+## Error Recovery
+
+对齐 [s11 Error Recovery](https://learn.shareai.run/zh/s11/)：LLM 失败先分类，再做最小恢复。
+
+| 路径 | 触发 | 动作 |
+|------|------|------|
+| 输出截断 | `finish_reason=length` | 先把 `max_tokens` 8K→64K 重试同一请求；仍截断则写入续写提示（最多 3 次） |
+| 上下文超限 | `prompt_too_long` 等 | `reactive_compact` 一次后重试；再失败 → `run.error` `context_overflow` |
+| 临时故障 | 429 / 529 / 5xx / 网络 | 指数退避 + 抖动（最多 10 次）；连续 3 次 overloaded 可切 `MINI_AGENT_FALLBACK_MODEL` |
+
+观测事件：`run.recovery`（`kind` 区分路径）。取消 / abort **不重试**。
+
+简化：无 CC 全套 13+ reason、无流式暂扣、无 token_budget diminishing returns。
 
 ## Context Compact
 

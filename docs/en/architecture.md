@@ -29,7 +29,7 @@ flowchart LR
 3. Assemble system + history, call the LLM
 4. If there are tool_calls: may emit `message.delta` first, then `tool.started` → (optional `tool.approval_required` / `tool.result_delta` / `subagent.*`) → `tool.completed`, write results back, continue
 5. If there are no tool_calls: `message.delta` + `run.completed`
-6. On error or cancel: `run.error`
+6. On error or cancel: `run.error`; recovery attempts may emit `run.recovery`
 
 Connect stream events use camelCase `payload.case` (e.g. `textDelta`, `toolCall`, `toolApprovalRequired`, `toolResultDelta`, `subagentStarted`); the list above uses runtime dotted names.
 
@@ -94,6 +94,20 @@ Aligned with [s10 System Prompt](https://learn.shareai.run/zh/s10/): assembled a
 Within a run, `SystemPromptCache` reuses the assembled string when context is unchanged (string-join cache only — not API prompt cache). Relevant memory bodies still inject as a per-turn user prefix, not into system.
 
 Simplifications vs CC: no Skills / multi-style section packs / `SYSTEM_PROMPT_DYNAMIC_BOUNDARY`.
+
+## Error Recovery
+
+Aligned with [s11 Error Recovery](https://learn.shareai.run/zh/s11/): classify LLM failures, then apply the smallest recovery.
+
+| Path | Trigger | Action |
+|------|---------|--------|
+| Output truncated | `finish_reason=length` | Escalate `max_tokens` 8K→64K and retry the same request; if still truncated, append a continuation prompt (up to 3 times) |
+| Context overflow | `prompt_too_long`, etc. | One `reactive_compact` then retry; fail with `run.error` `context_overflow` if still too long |
+| Transient | 429 / 529 / 5xx / network | Exponential backoff + jitter (max 10); after 3 consecutive overloaded errors, switch to `MINI_AGENT_FALLBACK_MODEL` when set |
+
+Observability: `run.recovery` events (`kind` distinguishes paths). Cancel / abort is **not** retried.
+
+Simplifications: no full CC 13+ reasons, no streaming hold-back, no token_budget diminishing returns.
 
 ## Context Compact
 

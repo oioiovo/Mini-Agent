@@ -144,6 +144,7 @@ message AgentEvent {
     SubagentProgressEvent subagent_progress = 20;
     SubagentCompletedEvent subagent_completed = 21;
     ContextCompactedEvent context_compacted = 22;
+    RunRecoveryEvent run_recovery = 23;
   }
 }
 
@@ -315,6 +316,15 @@ message ContextCompactedEvent {
   int32 tokens_after = 3;
   int32 messages_before = 4;
   int32 messages_after = 5;
+}
+
+message RunRecoveryEvent {
+  // max_tokens_escalate | max_tokens_continuation | reactive_compact | transient_retry | fallback_model
+  string kind = 1;
+  int32 attempt = 2;
+  int32 delay_ms = 3;
+  string model = 4;
+  string detail = 5;
 }
 
 message CompactSessionRequest {

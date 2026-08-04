@@ -266,6 +266,20 @@ function toProtoEvent(event: RuntimeEvent): AgentEvent {
           },
         },
       });
+    case "run.recovery":
+      return create(AgentEventSchema, {
+        ...base,
+        payload: {
+          case: "runRecovery",
+          value: {
+            kind: event.kind,
+            attempt: event.attempt,
+            delayMs: event.delayMs,
+            model: event.model,
+            detail: event.detail,
+          },
+        },
+      });
   }
 }
 

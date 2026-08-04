@@ -3,6 +3,7 @@ import { SubagentRunner, type SubagentOptions } from "./agent/subagent.js";
 import type { CompactStepResult } from "./context/compact.js";
 import { createCompactTool } from "./context/compact-tool.js";
 import type { CompactOptions } from "./context/estimate.js";
+import type { RecoveryOptions } from "./recovery/constants.js";
 import { FileMemoryStore } from "./memory/file-store.js";
 import { createMemoryTools } from "./memory/memory-tools.js";
 import { InMemoryMemoryStore } from "./memory/store.js";
@@ -41,6 +42,7 @@ export interface CreateAgentOptions {
   policy?: ToolPolicyOptions;
   subagent?: SubagentOptions;
   compact?: CompactOptions;
+  recovery?: RecoveryOptions;
   mcp?: { servers?: McpServerConfig[] };
   memory?: {
     enabled?: boolean;
@@ -188,6 +190,7 @@ export async function createAgent(options: CreateAgentOptions = {}): Promise<Min
     approvals,
     workspaceRoot,
     compact: options.compact,
+    recovery: options.recovery,
   };
   const loop = new AgentLoop(loopOptions);
 

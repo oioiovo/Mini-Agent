@@ -14,6 +14,8 @@ TypeScript 单核心 Agent Runtime，通过 Connect over HTTP 对外提供流式
 - `@mini-agent/client`（Connect 薄客户端）
 - Cron Scheduler（配置文件 + proto 动态管理，定时触发 Agent run）
 - Context Compact（四层上下文压缩：budget / snip / micro / LLM）
+- System Prompt 运行时组装（identity / tools / workspace / memory）
+- Error Recovery（截断续写、reactive compact、429/529 退避与备用模型）
 
 ## 快速开始
 

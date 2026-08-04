@@ -1,5 +1,6 @@
 import type { ChatMessage, LlmChatRequest, LlmChatResponse, LlmClient } from "../types.js";
 import { toErrorMessage } from "../utils.js";
+import { LlmHttpError, parseRetryAfterMs } from "../recovery/errors.js";
 
 export interface OpenAICompatibleConfig {
   apiKey: string;
@@ -31,7 +32,7 @@ export class OpenAICompatibleClient implements LlmClient {
   }
 
   async chat(request: LlmChatRequest): Promise<LlmChatResponse> {
-    const body = {
+    const body: Record<string, unknown> = {
       model: request.model || this.defaultModel,
       messages: request.messages.map(toOpenAIMessage),
       tools: request.tools?.map((tool) => ({
@@ -43,20 +44,35 @@ export class OpenAICompatibleClient implements LlmClient {
         },
       })),
     };
+    if (request.maxTokens != null && request.maxTokens > 0) {
+      body.max_tokens = request.maxTokens;
+    }
 
-    const response = await fetch(`${this.baseUrl}/chat/completions`, {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        authorization: `Bearer ${this.apiKey}`,
-      },
-      body: JSON.stringify(body),
-      signal: request.abortSignal,
-    });
+    let response: Response;
+    try {
+      response = await fetch(`${this.baseUrl}/chat/completions`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          authorization: `Bearer ${this.apiKey}`,
+        },
+        body: JSON.stringify(body),
+        signal: request.abortSignal,
+      });
+    } catch (err) {
+      if (request.abortSignal?.aborted) {
+        throw err;
+      }
+      throw new Error(`LLM network error: ${toErrorMessage(err)}`);
+    }
 
     if (!response.ok) {
       const text = await response.text();
-      throw new Error(`LLM request failed (${response.status}): ${text}`);
+      throw new LlmHttpError({
+        status: response.status,
+        body: text,
+        retryAfterMs: parseRetryAfterMs(response.headers.get("retry-after")),
+      });
     }
 
     const data = (await response.json()) as {

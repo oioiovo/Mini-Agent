@@ -14,6 +14,8 @@ A TypeScript single-core Agent Runtime that exposes a streaming API over Connect
 - `@mini-agent/client` (Connect thin client)
 - Cron Scheduler (config file + proto CRUD; fires Agent runs on a schedule)
 - Context Compact (four-layer pipeline: budget / snip / micro / LLM)
+- Runtime system-prompt assembly (identity / tools / workspace / memory)
+- Error Recovery (truncation continuation, reactive compact, 429/529 backoff + fallback model)
 
 ## Quick start
 

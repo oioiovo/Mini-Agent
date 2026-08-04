@@ -172,3 +172,24 @@ export type {
 
 export { createCompactTool } from "./context/compact-tool.js";
 export { consoleLogger } from "./utils.js";
+
+export {
+  LlmHttpError,
+  classifyLlmError,
+  parseRetryAfterMs,
+  isAbortError,
+  isTransientLlmError,
+} from "./recovery/errors.js";
+export type { LlmErrorKind } from "./recovery/errors.js";
+export { retryDelayMs, sleep } from "./recovery/backoff.js";
+export { RecoveryState } from "./recovery/state.js";
+export { withTransientRetry } from "./recovery/with-retry.js";
+export {
+  DEFAULT_MAX_TOKENS,
+  ESCALATED_MAX_TOKENS,
+  MAX_CONTINUATIONS,
+  MAX_TRANSIENT_RETRIES,
+  CONTINUATION_PROMPT,
+  resolveRecoveryOptions,
+} from "./recovery/constants.js";
+export type { RecoveryOptions, RecoveryKind } from "./recovery/constants.js";

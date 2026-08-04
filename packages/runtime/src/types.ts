@@ -120,6 +120,22 @@ export type AgentEvent =
       timestampMs: number;
     }
   | {
+      type: "run.recovery";
+      runId: string;
+      sessionId: string;
+      kind:
+        | "max_tokens_escalate"
+        | "max_tokens_continuation"
+        | "reactive_compact"
+        | "transient_retry"
+        | "fallback_model";
+      attempt: number;
+      delayMs: number;
+      model: string;
+      detail: string;
+      timestampMs: number;
+    }
+  | {
       type: "subagent.started";
       runId: string;
       sessionId: string;
@@ -173,6 +189,8 @@ export interface LlmChatRequest {
   model: string;
   messages: ChatMessage[];
   tools?: LlmToolSpec[];
+  /** Optional output token budget (provider-dependent). */
+  maxTokens?: number;
   abortSignal?: AbortSignal;
 }
 

@@ -62,6 +62,27 @@ export function ingestRuntimeEvent(trace: RunTrace, event: AgentEvent, log: LogF
       trace.events.push("runError");
       log("run.error", { code: event.code, message: event.message });
       throw new Error(`${event.code}: ${event.message}`);
+    case "run.recovery":
+      trace.events.push("runRecovery");
+      log("run.recovery", {
+        kind: event.kind,
+        attempt: event.attempt,
+        model: event.model,
+      });
+      break;
+    case "context.compacted":
+      trace.events.push("contextCompacted");
+      log("context.compacted", { layer: event.layer });
+      break;
+    case "subagent.started":
+      trace.events.push("subagentStarted");
+      break;
+    case "subagent.progress":
+      trace.events.push("subagentProgress");
+      break;
+    case "subagent.completed":
+      trace.events.push("subagentCompleted");
+      break;
   }
 }
 

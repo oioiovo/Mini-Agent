@@ -12,7 +12,6 @@ import {
   runCompactPipeline,
 } from "../context/compact.js";
 import {
-  isPromptTooLongError,
   resolveCompactOptions,
   type CompactOptions,
 } from "../context/estimate.js";
@@ -28,6 +27,10 @@ import {
   SystemPromptCache,
 } from "../prompt/assemble.js";
 import { DEFAULT_IDENTITY } from "../prompt/sections.js";
+import { CONTINUATION_PROMPT, type RecoveryOptions } from "../recovery/constants.js";
+import { classifyLlmError } from "../recovery/errors.js";
+import { RecoveryState } from "../recovery/state.js";
+import { withTransientRetry } from "../recovery/with-retry.js";
 
 export interface AgentLoopOptions {
   llm: LlmClient;
@@ -47,6 +50,7 @@ export interface AgentLoopOptions {
   approvals: ApprovalBroker;
   workspaceRoot?: string;
   compact?: CompactOptions;
+  recovery?: RecoveryOptions;
 }
 
 export interface RunInput {
@@ -94,6 +98,7 @@ export class AgentLoop {
   private readonly workspaceRoot: string;
   private readonly compactOptions: CompactOptions;
   private readonly promptCache = new SystemPromptCache();
+  private readonly recoveryOptions: RecoveryOptions;
 
   constructor(private readonly options: AgentLoopOptions) {
     this.logger = options.logger ?? consoleLogger;
@@ -104,6 +109,7 @@ export class AgentLoop {
     this.defaultIdentity = options.systemPrompt?.trim() || DEFAULT_IDENTITY;
     this.workspaceRoot = options.workspaceRoot ?? process.cwd();
     this.compactOptions = options.compact ?? {};
+    this.recoveryOptions = options.recovery ?? {};
   }
 
   cancel(runId: string): boolean {
@@ -211,6 +217,10 @@ export class AgentLoop {
       let finalText = "";
       let llmCompactFailures = 0;
       const compactOpts = resolveCompactOptions(this.compactOptions);
+      const recovery = new RecoveryState({
+        model,
+        recovery: this.recoveryOptions,
+      });
 
       while (steps < maxSteps) {
         if (controller.signal.aborted) {
@@ -269,6 +279,29 @@ export class AgentLoop {
         const identity =
           latest.systemPrompt?.trim() || this.defaultIdentity;
         const toolDefs = this.options.tools.list();
+        const toolSpecs = toolDefs.map((tool) => ({
+          name: tool.name,
+          description: tool.description,
+          parameters: tool.inputSchema,
+        }));
+
+        const rebuildMessages = (sessionMessages: ChatMessage[], sys: string) => {
+          const next: ChatMessage[] = [
+            { role: "system", content: sys },
+            ...sessionMessages.map((m, index) => {
+              if (
+                memoryUserPrefix &&
+                index === turnUserIndex &&
+                m.role === "user"
+              ) {
+                return { ...m, content: memoryUserPrefix + m.content };
+              }
+              return m;
+            }),
+          ];
+          return next;
+        };
+
         const systemPrompt = this.promptCache.get(
           buildPromptContext({
             identity,
@@ -277,84 +310,199 @@ export class AgentLoop {
             memoryIndex,
           }),
         ).prompt;
-        const messages: ChatMessage[] = [
-          { role: "system", content: systemPrompt },
-          ...latest.messages.map((m, index) => {
-            if (
-              memoryUserPrefix &&
-              index === turnUserIndex &&
-              m.role === "user"
-            ) {
-              return { ...m, content: memoryUserPrefix + m.content };
-            }
-            return m;
-          }),
-        ];
+        let messages = rebuildMessages(latest.messages, systemPrompt);
 
         let response;
-        let reactiveRetries = 0;
-        for (;;) {
+        llmCall: for (;;) {
+          const pendingRecovery: AgentEvent[] = [];
           try {
-            response = await this.options.llm.chat({
-              model,
-              messages,
-              tools: toolDefs.map((tool) => ({
-                name: tool.name,
-                description: tool.description,
-                parameters: tool.inputSchema,
-              })),
+            response = await withTransientRetry({
+              state: recovery,
               abortSignal: controller.signal,
+              onRetry: (meta) => {
+                this.logger.warn("llm recovery", {
+                  runId,
+                  sessionId,
+                  kind: meta.kind,
+                  attempt: meta.attempt,
+                  delayMs: meta.delayMs,
+                  model: meta.model,
+                });
+                pendingRecovery.push({
+                  type: "run.recovery",
+                  ...emitBase,
+                  kind: meta.kind,
+                  attempt: meta.attempt,
+                  delayMs: meta.delayMs,
+                  model: meta.model,
+                  detail: meta.detail ?? "",
+                  timestampMs: nowMs(),
+                });
+              },
+              fn: () =>
+                this.options.llm.chat({
+                  model: recovery.currentModel,
+                  messages,
+                  tools: toolSpecs,
+                  maxTokens: recovery.options.enabled
+                    ? recovery.maxTokens
+                    : undefined,
+                  abortSignal: controller.signal,
+                }),
             });
-            break;
           } catch (err) {
+            for (const event of pendingRecovery) yield event;
+            const kind = classifyLlmError(err);
             if (
-              !isPromptTooLongError(err) ||
-              reactiveRetries >= compactOpts.maxReactiveRetries
+              kind === "prompt_too_long" &&
+              recovery.options.enabled &&
+              !recovery.hasReactiveCompact &&
+              compactOpts.maxReactiveRetries > 0
             ) {
-              // Track L4 failures separately only when compact_history itself failed;
-              // prompt-too-long after cheap layers still gets reactive below.
-              throw err;
-            }
-            reactiveRetries += 1;
-            const reactive = await reactiveCompact(latest!.messages, {
-              llm: this.options.llm,
-              model,
-              workspaceRoot: this.workspaceRoot,
-              sessionId,
-              abortSignal: controller.signal,
-            });
-            await this.options.sessions.replaceMessages(sessionId, reactive.messages);
-            for (const layer of reactive.layers) {
+              recovery.hasReactiveCompact = true;
+              this.logger.warn("llm recovery", {
+                runId,
+                sessionId,
+                kind: "reactive_compact",
+              });
               yield {
-                type: "context.compacted",
+                type: "run.recovery",
                 ...emitBase,
-                layer,
-                tokensBefore: reactive.tokensBefore,
-                tokensAfter: reactive.tokensAfter,
-                messagesBefore: reactive.messagesBefore,
-                messagesAfter: reactive.messagesAfter,
+                kind: "reactive_compact",
+                attempt: 1,
+                delayMs: 0,
+                model: recovery.currentModel,
+                detail: "prompt_too_long → reactive compact",
                 timestampMs: nowMs(),
               };
+              const reactive = await reactiveCompact(latest!.messages, {
+                llm: this.options.llm,
+                model: recovery.currentModel,
+                workspaceRoot: this.workspaceRoot,
+                sessionId,
+                abortSignal: controller.signal,
+              });
+              await this.options.sessions.replaceMessages(
+                sessionId,
+                reactive.messages,
+              );
+              for (const layer of reactive.layers) {
+                yield {
+                  type: "context.compacted",
+                  ...emitBase,
+                  layer,
+                  tokensBefore: reactive.tokensBefore,
+                  tokensAfter: reactive.tokensAfter,
+                  messagesBefore: reactive.messagesBefore,
+                  messagesAfter: reactive.messagesAfter,
+                  timestampMs: nowMs(),
+                };
+              }
+              latest = (await this.options.sessions.get(sessionId))!;
+              messages = rebuildMessages(latest.messages, systemPrompt);
+              continue llmCall;
             }
-            latest = (await this.options.sessions.get(sessionId))!;
-            messages.length = 0;
-            messages.push(
-              { role: "system", content: systemPrompt },
-              ...latest.messages.map((m, index) => {
-                if (
-                  memoryUserPrefix &&
-                  index === turnUserIndex &&
-                  m.role === "user"
-                ) {
-                  return { ...m, content: memoryUserPrefix + m.content };
-                }
-                return m;
-              }),
-            );
+            if (kind === "prompt_too_long") {
+              yield {
+                type: "run.error",
+                ...emitBase,
+                code: "context_overflow",
+                message: toErrorMessage(err),
+                timestampMs: nowMs(),
+              };
+              return;
+            }
+            throw err;
           }
+
+          for (const event of pendingRecovery) yield event;
+
+          if (
+            recovery.options.enabled &&
+            response.finishReason === "length"
+          ) {
+            if (!recovery.hasEscalated) {
+              recovery.hasEscalated = true;
+              recovery.maxTokens = recovery.options.escalatedMaxTokens;
+              this.logger.warn("llm recovery", {
+                runId,
+                sessionId,
+                kind: "max_tokens_escalate",
+                maxTokens: recovery.maxTokens,
+              });
+              yield {
+                type: "run.recovery",
+                ...emitBase,
+                kind: "max_tokens_escalate",
+                attempt: 1,
+                delayMs: 0,
+                model: recovery.currentModel,
+                detail: `Escalated max_tokens to ${recovery.maxTokens}`,
+                timestampMs: nowMs(),
+              };
+              continue llmCall;
+            }
+            if (
+              recovery.continuationCount < recovery.options.maxContinuations
+            ) {
+              recovery.continuationCount += 1;
+              const truncated = response.message;
+              const contUser: ChatMessage = {
+                role: "user",
+                content: CONTINUATION_PROMPT,
+              };
+              await this.options.sessions.appendMessages(sessionId, [
+                truncated,
+                contUser,
+              ]);
+              await this.options.memory?.append(sessionId, [
+                truncated,
+                contUser,
+              ]);
+              if (truncated.content) {
+                yield {
+                  type: "message.delta",
+                  ...emitBase,
+                  text: truncated.content,
+                  timestampMs: nowMs(),
+                };
+                finalText = truncated.content;
+              }
+              this.logger.warn("llm recovery", {
+                runId,
+                sessionId,
+                kind: "max_tokens_continuation",
+                attempt: recovery.continuationCount,
+              });
+              yield {
+                type: "run.recovery",
+                ...emitBase,
+                kind: "max_tokens_continuation",
+                attempt: recovery.continuationCount,
+                delayMs: 0,
+                model: recovery.currentModel,
+                detail: CONTINUATION_PROMPT.slice(0, 120),
+                timestampMs: nowMs(),
+              };
+              latest = (await this.options.sessions.get(sessionId))!;
+              messages = rebuildMessages(latest.messages, systemPrompt);
+              continue llmCall;
+            }
+            yield {
+              type: "run.error",
+              ...emitBase,
+              code: "output_truncated",
+              message:
+                "Output still truncated after max_tokens escalation and continuations",
+              timestampMs: nowMs(),
+            };
+            return;
+          }
+
+          break llmCall;
         }
 
-        const assistant = response.message;
+        const assistant = response!.message;
         if (assistant.content) {
           yield {
             type: "message.delta",
@@ -369,14 +517,14 @@ export class AgentLoop {
         await this.options.memory?.append(sessionId, [assistant]);
 
         const toolCalls = assistant.toolCalls ?? [];
-        if (toolCalls.length === 0 || response.finishReason === "stop") {
+        if (toolCalls.length === 0 || response!.finishReason === "stop") {
           if (durable?.enabled) {
             try {
               const sessionNow = await this.options.sessions.get(sessionId);
               await durable.extractAfterRun({
                 messages: sessionNow?.messages ?? [],
                 llm: this.options.llm,
-                model,
+                model: recovery.currentModel,
                 abortSignal: controller.signal,
               });
             } catch (err) {
